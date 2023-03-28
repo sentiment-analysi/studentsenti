@@ -13,15 +13,17 @@ import pickle
 import keras
 from keras.models import Sequential
 from keras.layers import Dense
+from keras.models import load_model
 from sklearn.preprocessing import StandardScaler
 import streamlit as st
 nltk.download('stopwords')
 
 
 
-loaded_model = pickle.load(open('D:/work/ann/trained.sav','rb'))
-cv=pickle.load(open('D:/work/ann/count-Vectorizer.pkl','rb'))
-sc=pickle.load(open('D:/work/ann/Standard-Scaler.pkl','rb'))
+classifier = load_model('trained_model.h5')
+cv=pickle.load(open('count-Vectorizer.pkl','rb'))
+sc=pickle.load(open('Standard-Scaler.pkl','rb'))
+
 def predict_sentiment1(input_review):
         input_review = re.sub(pattern='[^a-zA-Z]',repl=' ', string=input_review)
         input_review = input_review.lower()
