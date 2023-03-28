@@ -30,9 +30,9 @@ def predict_sentiment1(input_review):
         pred = classifier.predict(input_X)
         pred = (pred > 0.5)
         if pred[0][0]:
-            print("Positive review")
+            return "Positive review"
         else:
-            print("Negative review")
+            return "Negative review"
     
     
     
