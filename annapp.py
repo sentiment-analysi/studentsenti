@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Mar 28 18:25:56 2023
-
-@author: EXSON
-"""
-
-import re
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
@@ -13,11 +5,10 @@ import pickle
 import keras
 from keras.models import Sequential
 from keras.layers import Dense
-from keras.models import load_model
 from sklearn.preprocessing import StandardScaler
+from keras.models import load_model
 import streamlit as st
 nltk.download('stopwords')
-
 
 
 classifier = load_model('trained_model.h5')
@@ -36,7 +27,7 @@ def predict_sentiment1(input_review):
         input_review = ' '.join(input_review)
         input_X = cv.transform([input_review]).toarray()
         input_X = sc.transform(input_X)
-        pred = loaded_model.predict(input_X)
+        pred = classifier.predict(input_X)
         pred = (pred > 0.5)
         if pred[0][0]:
             print("Positive review")
