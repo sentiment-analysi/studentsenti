@@ -54,7 +54,7 @@ def main():
     result3=''
     
     
-    if st.button('predict'):
+    if st.button('PREDICT'):
         result1= predict_sentiment1(review1)
         result2= predict_sentiment1(review2)
         result3= predict_sentiment1(review3)
