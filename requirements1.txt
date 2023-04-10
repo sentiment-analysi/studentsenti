@@ -1,4 +1,5 @@
 nltk==3.8.1
-scikit_learn
 streamlit==1.21.0
-keras
+tensorflow==2.12.0
+keras==2.12.0
+scikit_learn==1.2.2
