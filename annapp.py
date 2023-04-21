@@ -15,9 +15,9 @@ import matplotlib.pyplot as plt
 nltk.download('stopwords')
 
 # Load the trained model and preprocessing objects
-classifier = load_model('D:/work/ann/trained_model.h5')
-cv = pickle.load(open('D:/work/ann/count-Vectorizer.pkl','rb'))
-sc = pickle.load(open('D:/work/ann/Standard-Scaler.pkl','rb'))
+classifier = load_model('trained_model.h5')
+cv = pickle.load(open('count-Vectorizer.pkl','rb'))
+sc = pickle.load(open('Standard-Scaler.pkl','rb'))
 
 # Function to perform sentiment analysis
 def predict_sentiment(input_review):
