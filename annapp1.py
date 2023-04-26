@@ -74,7 +74,6 @@ def generate_pdf(predictions):
     buffer.close()
     return pdf_value
 
-# Main function to run the app
 def main():
     st.title('Student sentiment analysis')
 
@@ -102,6 +101,7 @@ def main():
         ax.set_xlabel('Sentiment')
         ax.set_ylabel('Count')
         st.pyplot(fig)
+        
     if st.button('Download report'):
         results = {'Course experience': result1, 'Instructor': result2, 'Useful material': result3}
         pdf_data = generate_pdf(results)
@@ -111,8 +111,6 @@ def main():
             file_name='sentiment_analysis_report.pdf',
             mime='application/pdf'
         )
-
 # Run the app
 if __name__=='__main__':
     main()
-
