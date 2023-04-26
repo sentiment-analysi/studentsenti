@@ -14,7 +14,9 @@ import matplotlib.pyplot as plt
 import io
 import base64
 import PyPDF2
-
+import io
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
 nltk.download('stopwords')
 
 # Load the trained model and preprocessing objects
@@ -43,25 +45,35 @@ def predict_sentiment(input_review):
         return "Negative review"
 
 # Function to create a PDF report
-def create_downloadable_report(results):
-    # Create a new PDF file
-    pdf = PyPDF2.PdfFileWriter()
-    # Add a new page to the PDF file
-    page = PyPDF2.pdf.PageObject.createBlankPage(None, 72*11, 72*8.5)
-    pdf.addPage(page)
-    # Write the analysis results to the page
-    content = "Sentiment Analysis Results:\n\n"
-    for key, value in results.items():
-        content += f"{key}: {value}\n"
-    page.mergeTextFields(content)
-    # Convert the PDF file to bytes
-    pdf_bytes = io.BytesIO()
-    pdf.write(pdf_bytes)
-    pdf_bytes.seek(0)
-    # Encode the bytes in base64 format for download
-    b64 = base64.b64encode(pdf_bytes.read()).decode()
-    href = f'<a href="data:application/pdf;base64,{b64}" download="sentiment_analysis_report.pdf">Download report</a>'
-    return href
+def generate_pdf(predictions):
+    buffer = io.BytesIO()
+    # create a new PDF with Reportlab
+    p = canvas.Canvas(buffer, pagesize=letter)
+
+    # Write prediction details in PDF
+    y = 700
+    for key, value in predictions.items():
+        p.drawString(100, y, f'{key}: {value}')
+        y -= 50
+
+    # Draw the bar chart in PDF
+    chart_width = 400
+    chart_height = 300
+    x = 100
+    y -= 50
+    fig = plt.gcf()
+    fig.set_size_inches(chart_width/80, chart_height/80)
+    imgdata = io.BytesIO()
+    fig.savefig(imgdata, format='png')
+    imgdata.seek(0)
+    p.drawImage(imgdata, x, y - chart_height, width=chart_width, height=chart_height)
+    p.showPage()
+    p.save()
+
+    # get the value of BytesIO buffer and write PDF to file
+    pdf_value = buffer.getvalue()
+    buffer.close()
+    return pdf_value
 
 # Main function to run the app
 def main():
@@ -91,6 +103,15 @@ def main():
         ax.set_xlabel('Sentiment')
         ax.set_ylabel('Count')
         st.pyplot(fig)
+    if st.button('Download report'):
+        results = {'Course experience': result1, 'Instructor': result2, 'Useful material': result3}
+        pdf_data = generate_pdf(results)
+        st.download_button(
+            label="Download Report",
+            data=pdf_data,
+            file_name='sentiment_analysis_report.pdf',
+            mime='application/pdf'
+        )
 
 # Run the app
 if __name__=='__main__':
