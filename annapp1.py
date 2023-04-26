@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 import io
 import base64
 import PyPDF2
-import io
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 nltk.download('stopwords')
