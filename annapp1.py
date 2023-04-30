@@ -62,25 +62,25 @@ def main():
         num_positives = results.count('Positive review')
         num_negatives = num_reviews - num_positives
 
-        # Display the review counts
-        st.write(f"Total reviews: {num_reviews}")
-        st.write(f"Number of positive reviews: {num_positives}")
-        st.write(f"Number of negative reviews: {num_negatives}")
+     
 
-        st.success(f"Course experience: {result1}")
-        st.success(f"Instructor: {result2}")
-        st.success(f"Material: {result3}")
+        # Generate the report as a string
+        report_str = f'Total reviews: {num_reviews}\n'
+        report_str += f'Number of positive reviews: {num_positives}\n'
+        report_str += f'Number of negative reviews: {num_negatives}\n'
+        report_str += f'Course experience: {result1}\n'
+        report_str += f'Instructor: {result2}\n'
+        report_str += f'Material: {result3}\n'
 
-        # Show analytics using a bar chart
-        results = {'Course experience': result1, 'Instructor': result2, 'Useful material': result3}
-        df = pd.DataFrame({'Reviews': list(results.keys()), 'Sentiment': list(results.values())})
-        df_counts = df['Sentiment'].value_counts()
+        # Generate the bar chart as an image
         fig, ax = plt.subplots()
         ax.bar(df_counts.index, df_counts.values, color=['blue', 'yellow'])
         ax.set_title('Sentiment Analysis Results')
         ax.set_xlabel('Sentiment')
         ax.set_ylabel('Count')
-        st.pyplot(fig)
+        img_data = io.BytesIO()
+        fig.savefig(img_data, format='png')
+        img_data.seek(0)
 
         # Add a download button to download the report as a CSV file
         report_df = pd.DataFrame({
@@ -89,11 +89,27 @@ def main():
         })
         report_df.to_csv('sentiment_analysis_report.csv', index=False)
         st.download_button(
-            label='Download report',
+            label='Download report (CSV)',
             data=report_df.to_csv().encode('utf-8'),
             file_name='sentiment_analysis_report.csv',
             mime='text/csv'
         )
+
+        # Add a button to download the report in PDF format
+        if st.button('Download report (PDF)'):
+            options = {
+                'page-size': 'A4',
+                'margin-top': '0mm',
+                'margin-right': '0mm',
+                'margin-bottom': '0mm',
+                'margin-left': '0mm'
+            }
+            pdfkit.from_string(report_str, 'sentiment_analysis_report.pdf', options=options)
+            st.download_button(
+                label='Download report (PDF)',
+                data=open('sentiment_analysis_report.pdf', 'rb').read(),
+                file_name='sentiment_analysis_report.pdf',
+                mime='application/pdf'
 
 # Run the app
 if __name__=='__main__':
