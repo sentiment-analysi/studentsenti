@@ -87,9 +87,21 @@ def main():
         result1 = predict_sentiment(review1)
         result2 = predict_sentiment(review2)
         result3 = predict_sentiment(review3)
-        st.success(f"Course experience: {result1}")
-        st.success(f"Instructor: {result2}")
-        st.success(f"Material: {result3}")
+        
+        # Check if any result is negative
+        negative_review = False
+        if 'Negative' in result1 or 'Negative' in result2 or 'Negative' in result3:
+            negative_review = True
+
+        # Set the color of the output field based on the sentiment analysis result
+        if negative_review:
+            st.error(f"Course experience: {result1}")
+            st.error(f"Instructor: {result2}")
+            st.error(f"Material: {result3}")
+        else:
+            st.success(f"Course experience: {result1}")
+            st.success(f"Instructor: {result2}")
+            st.success(f"Material: {result3}")
         
         # Show analytics using a bar chart
         results = {'Course experience': result1, 'Instructor': result2, 'Useful material': result3}
@@ -101,16 +113,7 @@ def main():
         ax.set_xlabel('Sentiment')
         ax.set_ylabel('Count')
         st.pyplot(fig)
-        
-    if st.button('Download report'):
-        results = {'Course experience': result1, 'Instructor': result2, 'Useful material': result3}
-        pdf_data = generate_pdf(results)
-        st.download_button(
-            label="Download Report",
-            data=pdf_data,
-            file_name='sentiment_analysis_report.pdf',
-            mime='application/pdf'
-        )
+
 # Run the app
 if __name__=='__main__':
     main()
