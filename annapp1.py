@@ -12,10 +12,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import io
-import base64
-import PyPDF2
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
+
 nltk.download('stopwords')
 
 # Load the trained model and preprocessing objects
@@ -43,37 +40,7 @@ def predict_sentiment(input_review):
     else:
         return "Negative review"
 
-# Function to create a PDF report
-def generate_pdf(predictions):
-    buffer = io.BytesIO()
-    # create a new PDF with Reportlab
-    p = canvas.Canvas(buffer, pagesize=letter)
-
-    # Write prediction details in PDF
-    y = 700
-    for key, value in predictions.items():
-        p.drawString(100, y, f'{key}: {value}')
-        y -= 50
-
-    # Draw the bar chart in PDF
-    chart_width = 400
-    chart_height = 300
-    x = 100
-    y -= 50
-    fig = plt.gcf()
-    fig.set_size_inches(chart_width/80, chart_height/80)
-    imgdata = io.BytesIO()
-    fig.savefig(imgdata, format='png')
-    imgdata.seek(0)
-    p.drawImage(imgdata, x, y - chart_height, width=chart_width, height=chart_height)
-    p.showPage()
-    p.save()
-
-    # get the value of BytesIO buffer and write PDF to file
-    pdf_value = buffer.getvalue()
-    buffer.close()
-    return pdf_value
-
+# Main function to run the app
 def main():
     st.title('Student sentiment analysis')
 
@@ -87,22 +54,10 @@ def main():
         result1 = predict_sentiment(review1)
         result2 = predict_sentiment(review2)
         result3 = predict_sentiment(review3)
-        
-        # Check if any result is negative
-        negative_review = False
-        if 'Negative' in result1 or 'Negative' in result2 or 'Negative' in result3:
-            negative_review = True
+        st.success(f"Course experience: {result1}")
+        st.success(f"Instructor: {result2}")
+        st.success(f"Material: {result3}")
 
-        # Set the color of the output field based on the sentiment analysis result
-        if negative_review:
-            st.error(f"Course experience: {result1}")
-            st.error(f"Instructor: {result2}")
-            st.error(f"Material: {result3}")
-        else:
-            st.success(f"Course experience: {result1}")
-            st.success(f"Instructor: {result2}")
-            st.success(f"Material: {result3}")
-        
         # Show analytics using a bar chart
         results = {'Course experience': result1, 'Instructor': result2, 'Useful material': result3}
         df = pd.DataFrame({'Reviews': list(results.keys()), 'Sentiment': list(results.values())})
@@ -112,6 +67,20 @@ def main():
         ax.set_title('Sentiment Analysis Results')
         ax.set_xlabel('Sentiment')
         ax.set_ylabel('Count')
+
+        # Save the plot to a buffer
+        buf = io.BytesIO()
+        fig.savefig(buf, format='png')
+
+        # Create a download button for the report
+        st.download_button(
+            label="Download report",
+            data=buf.getvalue(),
+            file_name='report.png',
+            mime='image/png',
+        )
+
+        # Show the plot in the app
         st.pyplot(fig)
 
 # Run the app
