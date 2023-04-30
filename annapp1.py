@@ -12,6 +12,11 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import io
+from io import BytesIO
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
+from reportlab.pdfgen import canvas
+import base64
 
 nltk.download('stopwords')
 
@@ -41,7 +46,6 @@ def predict_sentiment(input_review):
         return "Negative review"
 
 # Main function to run the app
-# Main function to run the app
 def main():
     st.title('Student sentiment analysis')
 
@@ -62,54 +66,46 @@ def main():
         num_positives = results.count('Positive review')
         num_negatives = num_reviews - num_positives
 
-     
+        # Display the review counts
+        st.write(f"Total reviews: {num_reviews}")
+        st.write(f"Number of positive reviews: {num_positives}")
+        st.write(f"Number of negative reviews: {num_negatives}")
 
-        # Generate the report as a string
-        report_str = f'Total reviews: {num_reviews}\n'
-        report_str += f'Number of positive reviews: {num_positives}\n'
-        report_str += f'Number of negative reviews: {num_negatives}\n'
-        report_str += f'Course experience: {result1}\n'
-        report_str += f'Instructor: {result2}\n'
-        report_str += f'Material: {result3}\n'
+        st.success(f"Course experience: {result1}")
+        st.success(f"Instructor: {result2}")
+        st.success(f"Material: {result3}")
 
-        # Generate the bar chart as an image
+        # Show analytics using a bar chart
+        results = {'Course experience': result1, 'Instructor': result2, 'Useful material': result3}
+        df = pd.DataFrame({'Reviews': list(results.keys()), 'Sentiment': list(results.values())})
+        df_counts = df['Sentiment'].value_counts()
         fig, ax = plt.subplots()
         ax.bar(df_counts.index, df_counts.values, color=['blue', 'yellow'])
         ax.set_title('Sentiment Analysis Results')
         ax.set_xlabel('Sentiment')
         ax.set_ylabel('Count')
-        img_data = io.BytesIO()
-        fig.savefig(img_data, format='png')
-        img_data.seek(0)
+        chart = st.pyplot(fig)
 
-        # Add a download button to download the report as a CSV file
-        report_df = pd.DataFrame({
-            'Review': [f'Review {i+1}' for i in range(num_reviews)],
-            'Sentiment': [result1, result2, result3]
-        })
-        report_df.to_csv('sentiment_analysis_report.csv', index=False)
+        # Add a download button to download the report as a PDF file
+        report_io = BytesIO()
+        report_canvas = canvas.Canvas(report_io, pagesize=letter)
+        report_canvas.drawString(0.5 * inch, 10.5 * inch, f"Total reviews: {num_reviews}")
+        report_canvas.drawString(0.5 * inch, 10.25 * inch, f"Number of positive reviews: {num_positives}")
+        report_canvas.drawString(0.5 * inch, 10 * inch, f"Number of negative reviews: {num_negatives}")
+        report_canvas.drawString(0.5 * inch, 9.5 * inch, f"Course experience: {result1}")
+        report_canvas.drawString(0.5 * inch, 9.25 * inch, f"Instructor: {result2}")
+        report_canvas.drawString(0.5 * inch, 9 * inch, f"Material: {result3}")
+        chart_img = BytesIO(chart._repr_png_())
+        report_canvas.drawImage(chart_img, 0.5 * inch, 7.5 * inch, width=6 * inch, height=4.5 * inch)
+        report_canvas.save()
+        report_io.seek(0)
+        b64 = base64.b64encode(report_io.getvalue()).decode()
         st.download_button(
-            label='Download report (CSV)',
-            data=report_df.to_csv().encode('utf-8'),
-            file_name='sentiment_analysis_report.csv',
-            mime='text/csv'
+            label='Download report',
+            data=b64,
+            file_name='sentiment_analysis_report.pdf',
+            mime='application/pdf'
         )
-
-        # Add a button to download the report in PDF format
-        if st.button('Download report (PDF)'):
-            options = {
-                'page-size': 'A4',
-                'margin-top': '0mm',
-                'margin-right': '0mm',
-                'margin-bottom': '0mm',
-                'margin-left': '0mm'
-            }
-            pdfkit.from_string(report_str, 'sentiment_analysis_report.pdf', options=options)
-            st.download_button(
-                label='Download report (PDF)',
-                data=open('sentiment_analysis_report.pdf', 'rb').read(),
-                file_name='sentiment_analysis_report.pdf',
-                mime='application/pdf'
 
 # Run the app
 if __name__=='__main__':
