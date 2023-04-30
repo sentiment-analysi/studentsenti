@@ -41,6 +41,7 @@ def predict_sentiment(input_review):
         return "Negative review"
 
 # Main function to run the app
+# Main function to run the app
 def main():
     st.title('Student sentiment analysis')
 
@@ -54,6 +55,18 @@ def main():
         result1 = predict_sentiment(review1)
         result2 = predict_sentiment(review2)
         result3 = predict_sentiment(review3)
+
+        # Count the number of positive and negative reviews
+        results = [result1, result2, result3]
+        num_reviews = len(results)
+        num_positives = results.count('Positive review')
+        num_negatives = num_reviews - num_positives
+
+        # Display the review counts
+        st.write(f"Total reviews: {num_reviews}")
+        st.write(f"Number of positive reviews: {num_positives}")
+        st.write(f"Number of negative reviews: {num_negatives}")
+
         st.success(f"Course experience: {result1}")
         st.success(f"Instructor: {result2}")
         st.success(f"Material: {result3}")
@@ -67,21 +80,20 @@ def main():
         ax.set_title('Sentiment Analysis Results')
         ax.set_xlabel('Sentiment')
         ax.set_ylabel('Count')
-
-        # Save the plot to a buffer
-        buf = io.BytesIO()
-        fig.savefig(buf, format='png')
-
-        # Create a download button for the report
-        st.download_button(
-            label="Download report",
-            data=buf.getvalue(),
-            file_name='report.png',
-            mime='image/png',
-        )
-
-        # Show the plot in the app
         st.pyplot(fig)
+
+        # Add a download button to download the report as a CSV file
+        report_df = pd.DataFrame({
+            'Review': [f'Review {i+1}' for i in range(num_reviews)],
+            'Sentiment': [result1, result2, result3]
+        })
+        report_df.to_csv('sentiment_analysis_report.csv', index=False)
+        st.download_button(
+            label='Download report',
+            data=report_df.to_csv().encode('utf-8'),
+            file_name='sentiment_analysis_report.csv',
+            mime='text/csv'
+        )
 
 # Run the app
 if __name__=='__main__':
