@@ -88,11 +88,11 @@ def main():
         # Get all the reviews from the database
         reviews_df = pd.read_sql_query("SELECT * FROM reviews1", conn)
         num_pos_reviewsfor1 = len(reviews_df[reviews_df['sentiment1'] == 'Positive review'])
-        num_pos_reviewsfor2 = len(reviews_df[reviews_df['sentiment1'] == 'Positive review'])
-        num_pos_reviewsfor3 = len(reviews_df[reviews_df['sentiment1'] == 'Positive review'])
+        num_pos_reviewsfor2 = len(reviews_df[reviews_df['sentiment2'] == 'Positive review'])
+        num_pos_reviewsfor3 = len(reviews_df[reviews_df['sentiment3'] == 'Positive review'])
         num_neg_reviewsfor1 = len(reviews_df[reviews_df['sentiment1'] == 'Negative review'])
-        num_neg_reviewsfor2 = len(reviews_df[reviews_df['sentiment1'] == 'Negative review'])
-        num_neg_reviewsfor3 = len(reviews_df[reviews_df['sentiment1'] == 'Negative review'])
+        num_neg_reviewsfor2 = len(reviews_df[reviews_df['sentiment2'] == 'Negative review'])
+        num_neg_reviewsfor3 = len(reviews_df[reviews_df['sentiment3'] == 'Negative review'])
         totalnum_pos_reviews = len(reviews_df[reviews_df['sentiment1'] == 'Positive review']) + \
                   len(reviews_df[reviews_df['sentiment2'] == 'Positive review']) + \
                   len(reviews_df[reviews_df['sentiment3'] == 'Positive review'])
