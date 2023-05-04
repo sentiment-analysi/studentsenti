@@ -127,13 +127,25 @@ def main():
              conn.commit()
              st.success('All reviews have been deleted.')
           st.header('Sentiment-wise Analytics')
-          df_counts1 = reviews_df[reviews_df['sentiment1']=='Positive review']['sentiment1'].value_counts()
-          df_counts2 = reviews_df[reviews_df['sentiment1']=='Negative review']['sentiment1'].value_counts()
-          df_counts3 = reviews_df[reviews_df['sentiment2']=='Positive review']['sentiment2'].value_counts()
-          df_counts4 = reviews_df[reviews_df['sentiment2']=='Negative review']['sentiment2'].value_counts()
-          df_counts5 = reviews_df[reviews_df['sentiment3']=='Positive review']['sentiment3'].value_counts()
-          df_counts6 = reviews_df[reviews_df['sentiment3']=='Negative review']['sentiment3'].value_counts()
-          st.bar_chart(pd.concat([df_counts1, df_counts2, df_counts3, df_counts4, df_counts5, df_counts6], axis=0))
+          num_pos_reviews = [num_pos_reviewsfor1, num_pos_reviewsfor2, num_pos_reviewsfor3, totalnum_pos_reviews]
+          num_neg_reviews = [num_neg_reviewsfor1, num_neg_reviewsfor2, num_neg_reviewsfor3, totalnum_neg_reviews]
+          sentiments = ['Sentiment 1', 'Sentiment 2', 'Sentiment 3', 'Total']
+
+          # Create a figure and axis object
+          fig, ax = plt.subplots(figsize=(10, 6))
+
+          # Create bar plots for positive and negative reviews
+          ax.bar(sentiments, num_pos_reviews, width=0.4, color='green', label='Positive Reviews')
+          ax.bar(sentiments, num_neg_reviews, width=0.4, color='red', bottom=num_pos_reviews, label='Negative Reviews')
+
+          # Add labels and titles
+          ax.set_xlabel('Sentiments')
+          ax.set_ylabel('Number of Reviews')
+          ax.set_title('Number of Positive and Negative Reviews by Sentiment')
+          ax.legend()
+
+          plt.show()
+
 
 
 
