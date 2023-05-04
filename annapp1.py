@@ -45,8 +45,7 @@ def predict_sentiment(input_review):
     else:
         return "Negative review"
 
-# Main function to run the app
-de# Main function to run the app
+# Main function to run the app Main function to run the app
 def main():
     st.title('Student sentiment analysis')
 
