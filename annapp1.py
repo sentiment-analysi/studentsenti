@@ -30,9 +30,10 @@ c.execute('''CREATE TABLE IF NOT EXISTS reviews
               course_experience TEXT,
               sentiment1 TEXT,
               instructor TEXT,
-              sentiment3 TEXT,
+              sentiment2 TEXT,
               material TEXT,
               sentiment3 TEXT)''')
+
 conn.commit()
 
 # Function to perform sentiment analysis
