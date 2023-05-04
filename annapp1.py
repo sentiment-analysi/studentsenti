@@ -62,7 +62,6 @@ def main():
     # Check if user is an admin
     is_admin = st.sidebar.checkbox('Admin access')
 
-
     if not is_admin:
         # Create a form to collect reviews from multiple users
         with st.form(key='review_form'):
@@ -83,26 +82,27 @@ def main():
                 st.success('Thank you for submitting your reviews.')
 
     else:
-    # Get all the reviews from the database
-    reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
+        # Get all the reviews from the database
+        reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
 
-    # Check if there are any reviews to display
-    if len(reviews_df) == 0:
-        st.warning('No reviews to display.')
-    else:
-        # Show analytics for individual reviews
-        st.header('Analytics for Individual Reviews')
+        # Check if there are any reviews to display
+        if len(reviews_df) == 0:
+            st.warning('No reviews to display.')
+        else:
+            # Show overall analytics
+            st.header('Overall Analytics')
+            df_counts = reviews_df['sentiment'].value_counts()
+            st.bar_chart(df_counts)
 
-        # Loop through each review and display its sentiment and the text
-        for index, row in reviews_df.iterrows():
-            sentiment = row['sentiment']
-            review_text = f"{row['course_experience']}\n{row['instructor']}\n{row['material']}"
-            st.write(f"**Review {index + 1} ({sentiment}):**")
-            st.write(review_text)
-
+            # Show reviews table
+            st.header('Reviews Table')
+            st.dataframe(reviews_df)
 
 if __name__ == '__main__':
     main()
+
+
+
 
 
 
