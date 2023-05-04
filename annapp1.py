@@ -59,9 +59,14 @@ def predict_sentiment(input_review):
         return "Negative review"
 
 
+# Create a dictionary to store admin usernames and passwords
+admin_credentials = {
+    'admin': 'secret'
+}
+
 def authenticate(username, password):
-    # Replace this with your own authentication code
-    return username == 'admin' and password == 'secret'
+    # Check if the username exists and the password is correct
+    return username in admin_credentials and admin_credentials[username] == password
 
 def main():
     st.title('Student sentiment analysis')
@@ -93,6 +98,7 @@ def main():
             username = st.sidebar.text_input('Username')
             password = st.sidebar.text_input('Password', type='password')
             if authenticate(username, password):
+                st.session_state.is_authenticated = True
                 st.success('Logged in as admin.')
             else:
                 st.error('Incorrect username or password.')
