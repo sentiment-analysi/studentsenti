@@ -94,13 +94,13 @@ def main():
         else:
             # Show overall analytics
             st.header('Overall Analytics')
-            df_counts = reviews_df['sentiment'].value_counts()
+            df_counts = reviews_df['sentiment1'].value_counts()
             st.bar_chart(df_counts)
 
             # Show sentiment-wise analytics
             st.header('Sentiment-wise Analytics')
-            df_counts1 = reviews_df[reviews_df['sentiment']=='positive']['sentiment'].value_counts()
-            df_counts2 = reviews_df[reviews_df['sentiment']=='negative']['sentiment'].value_counts()
+            df_counts1 = reviews_df[reviews_df['sentiment1']=='Positive review']['sentiment1'].value_counts()
+            df_counts2 = reviews_df[reviews_df['sentiment1']=='Negative review']['sentiment1'].value_counts()
             st.bar_chart(pd.concat([df_counts1, df_counts2], axis=0))
 
             # Show reviews table
@@ -109,13 +109,16 @@ def main():
 
             # Allow admin to delete all reviews
             if st.button('Delete all reviews'):
-              c.execute("DELETE FROM reviews")
+              c.execute("DELETE FROM reviews1")
               conn.commit()
               st.success('All reviews have been deleted.')
 
 
 if __name__ == '__main__':
     main()
+
+
+
 
 
 
