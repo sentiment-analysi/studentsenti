@@ -59,15 +59,6 @@ def predict_sentiment(input_review):
         return "Negative review"
 
 
-# Create a dictionary to store admin usernames and passwords
-admin_credentials = {
-    'admin': 'secret'
-}
-
-def authenticate(username, password):
-    # Check if the username exists and the password is correct
-    return username in admin_credentials and admin_credentials[username] == password
-
 def main():
     st.title('Student sentiment analysis')
 
@@ -84,45 +75,43 @@ def main():
 
             # Store the reviews in the database
             if submitted:
-                sentiment1 = predict_sentiment(review1)
-                sentiment2 = predict_sentiment(review2)
-                sentiment3 = predict_sentiment(review3)
-                c.execute("INSERT INTO reviews (user_id, course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?, ?)", (0, review1, sentiment1, review2, sentiment2, review3, sentiment3))
-                conn.commit()
-                st.success('Thank you for submitting your reviews.')
+              sentiment1 = predict_sentiment(review1)
+              sentiment2 = predict_sentiment(review2)
+              sentiment3 = predict_sentiment(review3)
+              c.execute("INSERT INTO reviews1 (course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?)", (review1, sentiment1, review2, sentiment2, review3, sentiment3))
+
+              conn.commit()
+              st.success('Thank you for submitting your reviews.')
 
 
     else:
-# Get all the reviews from the database
-            reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
+        # Get all the reviews from the database
+        reviews_df = pd.read_sql_query("SELECT * FROM reviews1", conn)
 
-            # Check if there are any reviews to display
-            if len(reviews_df) == 0:
-                st.warning('No reviews to display.')
-            else:
-                # Show overall analytics
-                st.header('Overall Analytics')
-                df_counts = reviews_df['sentiment1'].value_counts()
-                st.bar_chart(df_counts)
+        # Check if there are any reviews to display
+        if len(reviews_df) == 0:
+            st.warning('No reviews to display.')
+        else:
+            # Show overall analytics
+            st.header('Overall Analytics')
+            df_counts = reviews_df['sentiment1'].value_counts()
+            st.bar_chart(df_counts)
 
-                # Show sentiment-wise analytics
-                st.header('Sentiment-wise Analytics')
-                df_counts1 = reviews_df[reviews_df['sentiment1']=='Positive review']['sentiment1'].value_counts()
-                df_counts2 = reviews_df[reviews_df['sentiment1']=='Negative review']['sentiment1'].value_counts()
-                st.bar_chart(pd.concat([df_counts1, df_counts2], axis=0))
+            # Show sentiment-wise analytics
+            st.header('Sentiment-wise Analytics')
+            df_counts1 = reviews_df[reviews_df['sentiment1']=='Positive review']['sentiment1'].value_counts()
+            df_counts2 = reviews_df[reviews_df['sentiment1']=='Negative review']['sentiment1'].value_counts()
+            st.bar_chart(pd.concat([df_counts1, df_counts2], axis=0))
 
-                # Show reviews table
-                st.header('Reviews Table')
-                st.dataframe(reviews_df)
+            # Show reviews table
+            st.header('Reviews Table')
+            st.dataframe(reviews_df)
 
-                # Allow admin to delete all reviews
-                if st.button('Delete all reviews'):
-                    c.execute("DELETE FROM reviews")
-                    conn.commit()
-                    st.success('All reviews have been deleted.')
-        
-            
-
+            # Allow admin to delete all reviews
+            if st.button('Delete all reviews'):
+              c.execute("DELETE FROM reviews1")
+              conn.commit()
+              st.success('All reviews have been deleted.')
 
 
 if __name__ == '__main__':
