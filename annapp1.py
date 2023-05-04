@@ -75,18 +75,20 @@ def main():
               sentiment1 = predict_sentiment(review1)
               sentiment2 = predict_sentiment(review2)
               sentiment3 = predict_sentiment(review3)
+              if review1 and sentiment1:
+                  c.execute("INSERT INTO reviews (review, sentiment) VALUES (?, ?)", (review1, sentiment1))
+                  conn.commit()
 
-              c.execute("INSERT INTO reviews (review, sentiment) VALUES (?, ?)", (review1, sentiment1))
+              if review2 and sentiment2:
+                  c.execute("INSERT INTO reviews (review, sentiment) VALUES (?, ?)", (review2, sentiment2))
+                  conn.commit()
 
-              conn.commit()
-
-              c.execute("INSERT INTO reviews (review, sentiment) VALUES (?, ?)", (review2, sentiment2))
-              conn.commit()
-
-              c.execute("INSERT INTO reviews (review, sentiment) VALUES (?, ?)", (review3, sentiment3))
-              conn.commit()
+              if review3 and sentiment3:
+                  c.execute("INSERT INTO reviews (review, sentiment) VALUES (?, ?)", (review3, sentiment3))
+                  conn.commit()
 
               st.success('Thank you for submitting your reviews.')
+
 
 
     else:
