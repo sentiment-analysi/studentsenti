@@ -60,7 +60,8 @@ def main():
     st.title('Student sentiment analysis')
 
     # Check if user is an admin
-    is_admin = st.sidebar.checkbox('Admin access')
+   is_admin = st.sidebar.checkbox('Admin access', key='admin_checkbox')
+
 
     if not is_admin:
         # Create a form to collect reviews from multiple users
