@@ -35,7 +35,7 @@ conn.commit()
 
 # Function to perform sentiment analysis
 def predict_sentiment(input_review):
-    input_review = re.sub(pattern='[^a-zA-Z]', repl=' ', string=input_review)
+    input_review = re.sub(pattern='[^a-zA-Z\s]', repl=' ', string=input_review)
     input_review = input_review.lower()
     input_review_words = input_review.split()
     stop_words = set(stopwords.words('english'))
