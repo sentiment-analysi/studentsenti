@@ -63,56 +63,70 @@ def main():
     is_admin = st.sidebar.checkbox('Admin access')
 
     if not is_admin:
-    # Create a form to collect reviews from multiple users
-      with st.form(key='review_form'):
-          review1 = st.text_area('How was the course experience?')
-          review2 = st.text_area('Tell us about the instructor?')
-          review3 = st.text_area('Was the material provided useful?')
-          submitted = st.form_submit_button('Submit')
+        # Create a form to collect reviews from multiple users
+        with st.form(key='review_form'):
+            review1 = st.text_area('How was the course experience?')
+            review2 = st.text_area('Tell us about the instructor?')
+            review3 = st.text_area('Was the material provided useful?')
+            submitted = st.form_submit_button('Submit')
 
-          # Store the reviews in the database
-          if submitted:
-              sentiment1 = predict_sentiment(review1)
-              sentiment2 = predict_sentiment(review2)
-              sentiment3 = predict_sentiment(review3)
+            # Store the reviews in the database
+            if submitted:
+                sentiment1 = predict_sentiment(review1)
+                sentiment2 = predict_sentiment(review2)
+                sentiment3 = predict_sentiment(review3)
 
-              c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
-                        (review1, review2, review3, sentiment1))
-              conn.commit()
+                c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
+                            (review1, review2, review3, sentiment1))
+                conn.commit()
 
-              c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
-                        (review1, review2, review3, sentiment2))
-              conn.commit()
+                c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
+                            (review1, review2, review3, sentiment2))
+                conn.commit()
 
-              c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
-                        (review1, review2, review3, sentiment3))
-              conn.commit()
+                c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
+                            (review1, review2, review3, sentiment3))
+                conn.commit()
 
-              st.success('Thank you for submitting your reviews.')
-
+                st.success('Thank you for submitting your reviews.')
 
     else:
-    # Show overall analytics
-      st.header('Overall Analytics')
-      df_counts1 = reviews_df[reviews_df['sentiment']=='positive']['sentiment'].value_counts()
-      st.subheader('Sentiment 1')
-      st.bar_chart(df_counts1)
+        # Get all the reviews from the database
+        reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
 
-      df_counts2 = reviews_df[reviews_df['sentiment']=='neutral']['sentiment'].value_counts()
-      st.subheader('Sentiment 2')
-      st.bar_chart(df_counts2)
+        # Check if there are any reviews to display
+        if len(reviews_df) == 0:
+            st.warning('No reviews to display.')
+        else:
+            # Show overall analytics
+            st.header('Overall Analytics')
+            df_counts = reviews_df['sentiment'].value_counts()
+            st.bar_chart(df_counts)
 
-      df_counts3 = reviews_df[reviews_df['sentiment']=='negative']['sentiment'].value_counts()
-      st.subheader('Sentiment 3')
-      st.bar_chart(df_counts3)
+            # Show sentiment1 analytics
+            st.header('Sentiment1 Analytics')
+            df_counts1 = reviews_df[reviews_df['sentiment']==1]['sentiment'].value_counts()
+            st.bar_chart(df_counts1)
 
-      # Show reviews table
-      st.header('Reviews Table')
-      st.dataframe(reviews_df)
+            # Show sentiment2 analytics
+            st.header('Sentiment2 Analytics')
+            df_counts2 = reviews_df[reviews_df['sentiment']==2]['sentiment'].value_counts()
+            st.bar_chart(df_counts2)
 
+            # Show sentiment3 analytics
+            st.header('Sentiment3 Analytics')
+            df_counts3 = reviews_df[reviews_df['sentiment']==3]['sentiment'].value_counts()
+            st.bar_chart(df_counts3)
+
+            # Show reviews table
+            st.header('Reviews Table')
+            st.dataframe(reviews_df)
 
 if __name__ == '__main__':
     main()
+
+
+
 
 
 
