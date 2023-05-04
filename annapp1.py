@@ -35,6 +35,8 @@ conn.commit()
 
 # Function to perform sentiment analysis
 def predict_sentiment(input_review):
+    if not input_review:
+        return "Unknown"
     input_review = re.sub(pattern='[^a-zA-Z\s]', repl=' ', string=input_review)
     input_review = input_review.lower()
     input_review_words = input_review.split()
@@ -52,6 +54,7 @@ def predict_sentiment(input_review):
         return "Positive review"
     else:
         return "Negative review"
+
 
 def main():
     st.title('Student sentiment analysis')
