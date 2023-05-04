@@ -92,21 +92,24 @@ def main():
 
 
     else:
-        # Get all the reviews from the database
-        reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
+    # Show overall analytics
+      st.header('Overall Analytics')
+      df_counts1 = reviews_df[reviews_df['sentiment']=='positive']['sentiment'].value_counts()
+      st.subheader('Sentiment 1')
+      st.bar_chart(df_counts1)
 
-        # Check if there are any reviews to display
-        if len(reviews_df) == 0:
-            st.warning('No reviews to display.')
-        else:
-            # Show overall analytics
-            st.header('Overall Analytics')
-            df_counts = reviews_df['sentiment'].value_counts()
-            st.bar_chart(df_counts)
+      df_counts2 = reviews_df[reviews_df['sentiment']=='neutral']['sentiment'].value_counts()
+      st.subheader('Sentiment 2')
+      st.bar_chart(df_counts2)
 
-            # Show reviews table
-            st.header('Reviews Table')
-            st.dataframe(reviews_df)
+      df_counts3 = reviews_df[reviews_df['sentiment']=='negative']['sentiment'].value_counts()
+      st.subheader('Sentiment 3')
+      st.bar_chart(df_counts3)
+
+      # Show reviews table
+      st.header('Reviews Table')
+      st.dataframe(reviews_df)
+
 
 if __name__ == '__main__':
     main()
