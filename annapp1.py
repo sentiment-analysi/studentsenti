@@ -115,11 +115,9 @@ def main():
 
             # Allow admin to delete all reviews
             if st.button('Delete all reviews'):
-                confirm = st.warning('Are you sure you want to delete all reviews? This cannot be undone.')
-                if confirm.button('Yes, delete all reviews'):
-                    c.execute("DELETE FROM reviews")
-                    conn.commit()
-                    st.success('All reviews have been deleted.')
+              c.execute("DELETE FROM reviews")
+              conn.commit()
+              st.success('All reviews have been deleted.')
 
 
 if __name__ == '__main__':
