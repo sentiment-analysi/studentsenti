@@ -95,13 +95,13 @@ def main():
             # Show overall analytics
            # Show sentiment-wise analytics
           st.header('Reviews Table')
-            st.dataframe(reviews_df)
+          st.dataframe(reviews_df)
 
             # Allow admin to delete all reviews
-            if st.button('Delete all reviews'):
-              c.execute("DELETE FROM reviews1")
-              conn.commit()
-              st.success('All reviews have been deleted.')
+          if st.button('Delete all reviews'):
+             c.execute("DELETE FROM reviews1")
+             conn.commit()
+             st.success('All reviews have been deleted.')
           st.header('Sentiment-wise Analytics')
           df_counts1 = reviews_df[reviews_df['sentiment1']=='Positive review']['sentiment1'].value_counts()
           df_counts2 = reviews_df[reviews_df['sentiment1']=='Negative review']['sentiment1'].value_counts()
