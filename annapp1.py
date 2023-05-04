@@ -93,25 +93,16 @@ def main():
             st.warning('No reviews to display.')
         else:
             # Show overall analytics
-            st.header('Overall Analytics')
-            df_counts = reviews_df['sentiment1'].value_counts()
-            st.bar_chart(df_counts)
+           # Show sentiment-wise analytics
+          st.header('Sentiment-wise Analytics')
+          df_counts1 = reviews_df[reviews_df['sentiment1']=='Positive review']['sentiment1'].value_counts()
+          df_counts2 = reviews_df[reviews_df['sentiment1']=='Negative review']['sentiment1'].value_counts()
+          df_counts3 = reviews_df[reviews_df['sentiment2']=='Positive review']['sentiment2'].value_counts()
+          df_counts4 = reviews_df[reviews_df['sentiment2']=='Negative review']['sentiment2'].value_counts()
+          df_counts5 = reviews_df[reviews_df['sentiment3']=='Positive review']['sentiment3'].value_counts()
+          df_counts6 = reviews_df[reviews_df['sentiment3']=='Negative review']['sentiment3'].value_counts()
+          st.bar_chart(pd.concat([df_counts1, df_counts2, df_counts3, df_counts4, df_counts5, df_counts6], axis=0))
 
-            # Show sentiment-wise analytics
-            st.header('Sentiment-wise Analytics')
-            df_counts1 = reviews_df[reviews_df['sentiment1']=='Positive review']['sentiment1'].value_counts()
-            df_counts2 = reviews_df[reviews_df['sentiment1']=='Negative review']['sentiment1'].value_counts()
-            st.bar_chart(pd.concat([df_counts1, df_counts2], axis=0))
-
-            # Show reviews table
-            st.header('Reviews Table')
-            st.dataframe(reviews_df)
-
-            # Allow admin to delete all reviews
-            if st.button('Delete all reviews'):
-              c.execute("DELETE FROM reviews1")
-              conn.commit()
-              st.success('All reviews have been deleted.')
 
 
 if __name__ == '__main__':
