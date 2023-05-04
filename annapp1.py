@@ -57,41 +57,45 @@ def show_analytics(reviews):
 
 
 def main():
+    st.set_page_config(page_title='Student Sentiment Analysis', page_icon=':books:', layout='wide')
     st.title('Student sentiment analysis')
 
-    # Create a form to collect reviews from multiple users
-    with st.form(key='review_form'):
-        review1 = st.text_area('How was the course experience?')
-        review2 = st.text_area('Tell us about the instructor?')
-        review3 = st.text_area('Was the material provided useful?')
-        submitted = st.form_submit_button('Submit')
+    # Login form for admin
+    with st.form(key='login_form'):
+        username = st.text_input('Username')
+        password = st.text_input('Password', type='password')
+        login = st.form_submit_button('Login')
 
-        # Store the reviews in a Pandas DataFrame or a database
-        if submitted:
-            reviews_df = pd.DataFrame({
-                'Course experience': [review1],
-                'Instructor': [review2],
-                'Material': [review3]
-            })
-            st.success('Thank you for submitting your reviews!')
+    # If login successful, show the review form
+    if login:
+        if username == 'admin' and password == 'password':
+            st.success('Logged in successfully!')
+            st.sidebar.markdown('## Analytics')
+            st.sidebar.markdown('View sentiment analysis results for all reviews submitted:')
+            show_analytics = st.sidebar.checkbox('Show analytics')
+            if show_analytics:
+                # Load reviews from the database or DataFrame and perform sentiment analysis
+                # Display the sentiment analysis results using a bar chart
+                pass
+            else:
+                # Create a form to collect reviews from multiple users
+                with st.form(key='review_form'):
+                    review1 = st.text_area('How was the course experience?')
+                    review2 = st.text_area('Tell us about the instructor?')
+                    review3 = st.text_area('Was the material provided useful?')
+                    submitted = st.form_submit_button('Submit')
 
-    # Only show the analytics if there are reviews to analyze
-    if 'reviews_df' in locals():
-        # Perform sentiment analysis on the reviews and show the results
-        results = {}
-        for col in reviews_df.columns:
-            results[col] = predict_sentiment(reviews_df[col].iloc[0])
-            st.success(f"{col}: {results[col]}")
+                    # Store the reviews in a database or Pandas DataFrame
+                    if submitted:
+                        reviews_df = pd.DataFrame({
+                            'Course experience': [review1],
+                            'Instructor': [review2],
+                            'Material': [review3]
+                        })
+                        st.success('Thank you for submitting your reviews!')
+        else:
+            st.error('Invalid username or password.')
 
-        # Show analytics using a bar chart
-        df = pd.DataFrame({'Reviews': list(results.keys()), 'Sentiment': list(results.values())})
-        df_counts = df['Sentiment'].value_counts()
-        fig, ax = plt.subplots()
-        ax.bar(df_counts.index, df_counts.values, color=['blue', 'yellow'])
-        ax.set_title('Sentiment Analysis Results')
-        ax.set_xlabel('Sentiment')
-        ax.set_ylabel('Count')
-        st.pyplot(fig)
 
 if __name__=='__main__':
     main()
