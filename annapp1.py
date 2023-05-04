@@ -86,23 +86,6 @@ def show_sentiment_wise_analytics(reviews_df):
     st.write(f"Total Number of negative reviews: {totalnum_neg_reviews}")
 
     # Create a bar graph of the sentiment analysis results
-    fig, ax = plt.subplots(figsize=(10,5))
-    sentiment_labels = ['Positive', 'Negative']
-    question_labels = ['Q1', 'Q2', 'Q3']
-    pos_counts = [num_pos_reviewsfor1, num_pos_reviewsfor2, num_pos_reviewsfor3]
-    neg_counts = [num_neg_reviewsfor1, num_neg_reviewsfor2, num_neg_reviewsfor3]
-    x = np.arange(len(question_labels))
-    width = 0.35
-    ax.bar(x - width/2, pos_counts, width, label='Positive', color='green')
-    ax.bar(x + width/2, neg_counts, width, label='Negative', color='red')
-    ax.set_xticks(x)
-    ax.set_xticklabels(question_labels)
-    ax.legend()
-    ax.set_ylabel('Number of Reviews')
-    ax.set_xlabel('Questions')
-    ax.set_title('Sentiment Analysis Results')
-
-    st.pyplot(fig)
     
     fig, ax = plt.subplots(figsize=(10,5))
     sentiment_labels = ['Positive', 'Negative']
