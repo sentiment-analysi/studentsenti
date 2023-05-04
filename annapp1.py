@@ -59,6 +59,52 @@ def predict_sentiment(input_review):
         return "Negative review"
 
 
+def show_sentiment_wise_analytics(reviews_df):
+    num_pos_reviewsfor1 = len(reviews_df[reviews_df['sentiment1'] == 'Positive review'])
+    num_pos_reviewsfor2 = len(reviews_df[reviews_df['sentiment2'] == 'Positive review'])
+    num_pos_reviewsfor3 = len(reviews_df[reviews_df['sentiment3'] == 'Positive review'])
+    num_neg_reviewsfor1 = len(reviews_df[reviews_df['sentiment1'] == 'Negative review'])
+    num_neg_reviewsfor2 = len(reviews_df[reviews_df['sentiment2'] == 'Negative review'])
+    num_neg_reviewsfor3 = len(reviews_df[reviews_df['sentiment3'] == 'Negative review'])
+    totalnum_pos_reviews = len(reviews_df[reviews_df['sentiment1'] == 'Positive review']) + \
+                          len(reviews_df[reviews_df['sentiment2'] == 'Positive review']) + \
+                          len(reviews_df[reviews_df['sentiment3'] == 'Positive review'])
+    totalnum_neg_reviews = len(reviews_df[reviews_df['sentiment1'] == 'Negative review']) + \
+                          len(reviews_df[reviews_df['sentiment2'] == 'Negative review']) + \
+                          len(reviews_df[reviews_df['sentiment3'] == 'Negative review'])
+
+    st.write(f"Total Number of positive reviews for question 1: {num_pos_reviewsfor1}")
+    st.write(f"Total Number of positive reviews for question 2: {num_pos_reviewsfor2}")
+    st.write(f"Total Number of positive reviews for question 3: {num_pos_reviewsfor3}")
+    
+    st.write(f"Total Number of negative reviews for question 1: {num_neg_reviewsfor1}")
+    st.write(f"Total Number of negative reviews for question 2: {num_neg_reviewsfor2}")
+    st.write(f"Total Number of negative reviews for question 3: {num_neg_reviewsfor3}")
+  
+    st.write(f"Total Number of positive reviews: {totalnum_pos_reviews}")
+    st.write(f"Total Number of negative reviews: {totalnum_neg_reviews}")
+
+    # Create a bar graph of the sentiment analysis results
+    fig, ax = plt.subplots(figsize=(10,5))
+    sentiment_labels = ['Positive', 'Negative']
+    question_labels = ['Q1', 'Q2', 'Q3']
+    pos_counts = [num_pos_reviewsfor1, num_pos_reviewsfor2, num_pos_reviewsfor3]
+    neg_counts = [num_neg_reviewsfor1, num_neg_reviewsfor2, num_neg_reviewsfor3]
+    x = np.arange(len(question_labels))
+    width = 0.35
+    ax.bar(x - width/2, pos_counts, width, label='Positive', color='green')
+    ax.bar(x + width/2, neg_counts, width, label='Negative', color='red')
+    ax.set_xticks(x)
+    ax.set_xticklabels(question_labels)
+    ax.legend()
+    ax.set_ylabel('Number of Reviews')
+    ax.set_xlabel('Questions')
+    ax.set_title('Sentiment Analysis Results')
+
+    st.pyplot(fig)
+
+   
+
 def main():
     st.title('Student sentiment analysis')
 
@@ -87,64 +133,23 @@ def main():
     else:
         # Get all the reviews from the database
         reviews_df = pd.read_sql_query("SELECT * FROM reviews1", conn)
-        num_pos_reviewsfor1 = len(reviews_df[reviews_df['sentiment1'] == 'Positive review'])
-        num_pos_reviewsfor2 = len(reviews_df[reviews_df['sentiment2'] == 'Positive review'])
-        num_pos_reviewsfor3 = len(reviews_df[reviews_df['sentiment3'] == 'Positive review'])
-        num_neg_reviewsfor1 = len(reviews_df[reviews_df['sentiment1'] == 'Negative review'])
-        num_neg_reviewsfor2 = len(reviews_df[reviews_df['sentiment2'] == 'Negative review'])
-        num_neg_reviewsfor3 = len(reviews_df[reviews_df['sentiment3'] == 'Negative review'])
-        totalnum_pos_reviews = len(reviews_df[reviews_df['sentiment1'] == 'Positive review']) + \
-                  len(reviews_df[reviews_df['sentiment2'] == 'Positive review']) + \
-                  len(reviews_df[reviews_df['sentiment3'] == 'Positive review'])
-        totalnum_neg_reviews = len(reviews_df[reviews_df['sentiment1'] == 'Negative review']) + \
-                  len(reviews_df[reviews_df['sentiment2'] == 'Negative review']) + \
-                  len(reviews_df[reviews_df['sentiment3'] == 'Negative review'])
-
-
         # Check if there are any reviews to display
         if len(reviews_df) == 0:
             st.warning('No reviews to display.')
         else:
-            # Show overall analytics
-           # Show sentiment-wise analytics
+           
           st.header('Reviews Table')
           st.dataframe(reviews_df)
-          st.write(f"Total Number of positive reviews for question 1: {num_pos_reviewsfor1}")
-          st.write(f"Total Number of positive reviews for question 2: {num_pos_reviewsfor2}")
-          st.write(f"Total Number of positive reviews for question 3: {num_pos_reviewsfor3}")
-          
-          st.write(f"Total Number of negative reviews for question 1: {num_neg_reviewsfor1}")
-          st.write(f"Total Number of negative reviews for question 2: {num_neg_reviewsfor2}")
-          st.write(f"Total Number of negative reviews for question 3: {num_neg_reviewsfor3}")
-      
-          st.write(f"Total Number of positive reviews: {totalnum_pos_reviews}")
-          st.write(f"Total Number of negative reviews: {totalnum_neg_reviews}")
-
+     
 
             # Allow admin to delete all reviews
           if st.button('Delete all reviews'):
              c.execute("DELETE FROM reviews1")
              conn.commit()
              st.success('All reviews have been deleted.')
+          show_sentiment_wise_analytics(reviews_df)
           
-          num_pos_reviews = [num_pos_reviewsfor1, num_pos_reviewsfor2, num_pos_reviewsfor3, totalnum_pos_reviews]
-          num_neg_reviews = [num_neg_reviewsfor1, num_neg_reviewsfor2, num_neg_reviewsfor3, totalnum_neg_reviews]
-          sentiments = ['Sentiment 1', 'Sentiment 2', 'Sentiment 3', 'Total']
-
-          # Create a figure and axis object
-          fig, ax = plt.subplots(figsize=(10, 6))
-
-          # Create bar plots for positive and negative reviews
-          ax.bar(sentiments, num_pos_reviews, width=0.4, color='green', label='Positive Reviews')
-          ax.bar(sentiments, num_neg_reviews, width=0.4, color='red', bottom=num_pos_reviews, label='Negative Reviews')
-
-          # Add labels and titles
-          ax.set_xlabel('Sentiments')
-          ax.set_ylabel('Number of Reviews')
-          ax.set_title('Number of Positive and Negative Reviews by Sentiment')
-          ax.legend()
-
-          plt.show()
+        
 
 
 
