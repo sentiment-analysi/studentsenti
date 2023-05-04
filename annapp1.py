@@ -85,17 +85,29 @@ def main():
         # Get all the reviews from the database
         reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
 
-        # Show individual review analytics
-        st.header('Individual Review Analytics')
-        for column in reviews_df.columns[:-1]:
-            st.subheader(column)
-            df_counts = reviews_df[column].apply(predict_sentiment).value_counts()
+        # Check if there are any reviews to display
+        if len(reviews_df) == 0:
+            st.warning('No reviews to display.')
+        else:
+            # Show individual review analytics
+            st.header('Individual Review Analytics')
+            for column in reviews_df.columns[:-1]:
+                st.subheader(column)
+                df_counts = reviews_df[column].apply(predict_sentiment).value_counts()
+                st.bar_chart(df_counts)
+
+            # Show overall analytics
+            st.header('Overall Analytics')
+            df_counts = reviews_df['sentiment'].value_counts()
             st.bar_chart(df_counts)
 
-        # Show overall analytics
-        st.header('Overall Analytics')
-        df_counts = reviews_df['sentiment'].value_counts()
-        st.bar_chart(df_counts)
+            # Show reviews table
+            st.header('Reviews Table')
+            st.dataframe(reviews_df)
+
+if __name__ == '__main__':
+    main()
+
 
 if __name__ == '__main__':
     main()
