@@ -81,7 +81,7 @@ def main():
               c.execute("INSERT INTO reviews1 (course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?)", (review1, sentiment1, review2, sentiment2, review3, sentiment3))
 
               conn.commit()
-
+              st.success('Thank you for submitting your reviews.')
 
 
     else:
