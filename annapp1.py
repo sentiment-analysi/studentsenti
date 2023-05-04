@@ -63,23 +63,33 @@ def main():
     is_admin = st.sidebar.checkbox('Admin access')
 
     if not is_admin:
-        # Create a form to collect reviews from multiple users
-        with st.form(key='review_form'):
-            review1 = st.text_area('How was the course experience?')
-            review2 = st.text_area('Tell us about the instructor?')
-            review3 = st.text_area('Was the material provided useful?')
-            submitted = st.form_submit_button('Submit')
+    # Create a form to collect reviews from multiple users
+    with st.form(key='review_form'):
+        review1 = st.text_area('How was the course experience?')
+        review2 = st.text_area('Tell us about the instructor?')
+        review3 = st.text_area('Was the material provided useful?')
+        submitted = st.form_submit_button('Submit')
 
-            # Store the reviews in the database
-            if submitted:
-                sentiment1 = predict_sentiment(review1)
-                sentiment2 = predict_sentiment(review2)
-                sentiment3 = predict_sentiment(review3)
+        # Store the reviews in the database
+        if submitted:
+            sentiment1 = predict_sentiment(review1)
+            sentiment2 = predict_sentiment(review2)
+            sentiment3 = predict_sentiment(review3)
 
-                c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
-                          (review1, review2, review3, sentiment1))
-                conn.commit()
-                st.success('Thank you for submitting your reviews.')
+            c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
+                      (review1, review2, review3, sentiment1))
+            conn.commit()
+
+            c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
+                      (review1, review2, review3, sentiment2))
+            conn.commit()
+
+            c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
+                      (review1, review2, review3, sentiment3))
+            conn.commit()
+
+            st.success('Thank you for submitting your reviews.')
+
 
     else:
         # Get all the reviews from the database
