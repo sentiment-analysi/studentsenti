@@ -21,11 +21,11 @@ cv = pickle.load(open('count-Vectorizer.pkl','rb'))
 sc = pickle.load(open('Standard-Scaler.pkl','rb'))
 
 # Create a connection to the database
-conn = sqlite3.connect('reviews.db')
+conn = sqlite3.connect('reviews1.db')
 c = conn.cursor()
-c.execute(DROP TABLE reviews)
+
 # Create a table to store the reviews
-c.execute('''CREATE TABLE IF NOT EXISTS reviews
+c.execute('''CREATE TABLE IF NOT EXISTS reviews1
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               course_experience TEXT,
               sentiment1 TEXT,
@@ -78,7 +78,7 @@ def main():
               sentiment1 = predict_sentiment(review1)
               sentiment2 = predict_sentiment(review2)
               sentiment3 = predict_sentiment(review3)
-              c.execute("INSERT INTO reviews (course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?)", (review1, sentiment1, review2, sentiment2, review3, sentiment3))
+              c.execute("INSERT INTO reviews1 (course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?)", (review1, sentiment1, review2, sentiment2, review3, sentiment3))
 
               c.commit()
 
@@ -86,7 +86,7 @@ def main():
 
     else:
         # Get all the reviews from the database
-        reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
+        reviews_df = pd.read_sql_query("SELECT * FROM reviews1", conn)
 
         # Check if there are any reviews to display
         if len(reviews_df) == 0:
