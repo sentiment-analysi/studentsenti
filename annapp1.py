@@ -46,66 +46,53 @@ def predict_sentiment(input_review):
         return "Negative review"
 
 # Main function to run the app
+de# Main function to run the app
 def main():
     st.title('Student sentiment analysis')
 
+    # Create empty lists to store user reviews
+    reviews1 = []
+    reviews2 = []
+    reviews3 = []
+
+    # Get the number of users and reviews per user
+    num_users = st.number_input('Number of users:', min_value=1, max_value=10, step=1)
+    num_reviews = st.number_input('Number of reviews per user:', min_value=1, max_value=10, step=1)
+
     # Get the user inputs
-    review1 = st.text_input('How was the course experience?')
-    review2 = st.text_input('Tell us about the instructor?')
-    review3 = st.text_input('Was the material provided useful?')
+    for i in range(num_users):
+        st.subheader(f'Reviews for User {i+1}')
+        for j in range(num_reviews):
+            review1 = st.text_input(f'Review {j+1} for course experience:')
+            review2 = st.text_input(f'Review {j+1} for instructor:')
+            review3 = st.text_input(f'Review {j+1} for useful material:')
+            reviews1.append(review1)
+            reviews2.append(review2)
+            reviews3.append(review3)
 
-    # Perform sentiment analysis and show the results
-    if st.button('Predict'):
-        result1 = predict_sentiment(review1)
-        result2 = predict_sentiment(review2)
-        result3 = predict_sentiment(review3)
+    # Perform sentiment analysis for all reviews
+    results1 = [predict_sentiment(review) for review in reviews1]
+    results2 = [predict_sentiment(review) for review in reviews2]
+    results3 = [predict_sentiment(review) for review in reviews3]
 
-        # Count the number of positive and negative reviews
-        results = [result1, result2, result3]
-        num_reviews = len(results)
-        num_positives = results.count('Positive review')
-        num_negatives = num_reviews - num_positives
+    # Show the overall sentiment analysis results
+    st.subheader('Sentiment Analysis Results')
+    st.write('Course experience:', dict(Counter(results1)))
+    st.write('Instructor:', dict(Counter(results2)))
+    st.write('Useful material:', dict(Counter(results3)))
 
-        # Display the review counts
-        st.write(f"Total reviews: {num_reviews}")
-        st.write(f"Number of positive reviews: {num_positives}")
-        st.write(f"Number of negative reviews: {num_negatives}")
+    # Show analytics using a bar chart
+    results = {'Course experience': results1, 'Instructor': results2, 'Useful material': results3}
+    df = pd.DataFrame({'Reviews': list(results.keys()), 'Sentiment': list(map(lambda x: dict(Counter(x)), results.values()))})
+    df_counts = df.explode('Sentiment').groupby(['Reviews', 'Sentiment']).size().reset_index(name='Count')
+    fig, ax = plt.subplots()
+    ax.bar(df_counts['Sentiment'], df_counts['Count'], color=['blue', 'yellow'])
+    ax.set_title('Sentiment Analysis Results')
+    ax.set_xlabel('Sentiment')
+    ax.set_ylabel('Count')
+    ax.legend(df_counts['Reviews'])
+    st.pyplot(fig)
 
-        st.success(f"Course experience: {result1}")
-        st.success(f"Instructor: {result2}")
-        st.success(f"Material: {result3}")
-
-        # Show analytics using a bar chart
-        results = {'Course experience': result1, 'Instructor': result2, 'Useful material': result3}
-        df = pd.DataFrame({'Reviews': list(results.keys()), 'Sentiment': list(results.values())})
-        df_counts = df['Sentiment'].value_counts()
-        fig, ax = plt.subplots()
-        ax.bar(df_counts.index, df_counts.values, color=['blue', 'yellow'])
-        ax.set_title('Sentiment Analysis Results')
-        ax.set_xlabel('Sentiment')
-        ax.set_ylabel('Count')
-        chart = st.pyplot(fig)
-
-        # Add a download button to download the report as a PDF file
-        report_io = BytesIO()
-        report_canvas = canvas.Canvas(report_io, pagesize=letter)
-        report_canvas.drawString(0.5 * inch, 10.5 * inch, f"Total reviews: {num_reviews}")
-        report_canvas.drawString(0.5 * inch, 10.25 * inch, f"Number of positive reviews: {num_positives}")
-        report_canvas.drawString(0.5 * inch, 10 * inch, f"Number of negative reviews: {num_negatives}")
-        report_canvas.drawString(0.5 * inch, 9.5 * inch, f"Course experience: {result1}")
-        report_canvas.drawString(0.5 * inch, 9.25 * inch, f"Instructor: {result2}")
-        report_canvas.drawString(0.5 * inch, 9 * inch, f"Material: {result3}")
-        chart_img = BytesIO(chart._repr_png_())
-        report_canvas.drawImage(chart_img, 0.5 * inch, 7.5 * inch, width=6 * inch, height=4.5 * inch)
-        report_canvas.save()
-        report_io.seek(0)
-        b64 = base64.b64encode(report_io.getvalue()).decode()
-        st.download_button(
-            label='Download report',
-            data=b64,
-            file_name='sentiment_analysis_report.pdf',
-            mime='application/pdf'
-        )
 
 # Run the app
 if __name__=='__main__':
