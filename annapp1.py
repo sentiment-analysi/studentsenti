@@ -11,12 +11,6 @@ from keras.models import load_model
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import io
-from io import BytesIO
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.units import inch
-from reportlab.pdfgen import canvas
-import base64
 
 nltk.download('stopwords')
 
@@ -45,30 +39,52 @@ def predict_sentiment(input_review):
     else:
         return "Negative review"
 
+# Function to show analytics for all reviews
+def show_analytics(reviews):
+    results = {}
+    for i, review in enumerate(reviews):
+        result = predict_sentiment(review)
+        results[f'Review {i+1}'] = result
+    df = pd.DataFrame({'Reviews': list(results.keys()), 'Sentiment': list(results.values())})
+    df_counts = df['Sentiment'].value_counts()
+    fig, ax = plt.subplots()
+    ax.bar(df_counts.index, df_counts.values, color=['blue', 'yellow'])
+    ax.set_title('Sentiment Analysis Results')
+    ax.set_xlabel('Sentiment')
+    ax.set_ylabel('Count')
+    st.pyplot(fig)
+
+
+
 def main():
-    st.set_page_config(page_title='Student Sentiment Analysis', page_icon=':books:')
+    st.title('Student sentiment analysis')
 
-    # Get the number of reviews to collect from the user
-    num_reviews = st.number_input('How many reviews would you like to collect?', min_value=1, max_value=10)
+    # Create a form to collect reviews from multiple users
+    with st.form(key='review_form'):
+        review1 = st.text_area('How was the course experience?')
+        review2 = st.text_area('Tell us about the instructor?')
+        review3 = st.text_area('Was the material provided useful?')
+        submitted = st.form_submit_button('Submit')
 
-    # Collect the reviews from the user
-    reviews = []
-    for i in range(num_reviews):
-        review = st.text_input(f'Enter review {i+1}:')
-        reviews.append(review)
+        # Store the reviews in a Pandas DataFrame or a database
+        if submitted:
+            reviews_df = pd.DataFrame({
+                'Course experience': [review1],
+                'Instructor': [review2],
+                'Material': [review3]
+            })
+            st.success('Thank you for submitting your reviews!')
 
-    # If the user has submitted reviews, show the results and analytics
-    if st.button('Submit'):
-        # Perform sentiment analysis and show the results
-        results = []
-        for review in reviews:
-            result = predict_sentiment(review)
-            results.append(result)
-            st.success(f"Review: {review}")
-            st.success(f"Sentiment: {result}")
+    # Only show the analytics if there are reviews to analyze
+    if 'reviews_df' in locals():
+        # Perform sentiment analysis on the reviews and show the results
+        results = {}
+        for col in reviews_df.columns:
+            results[col] = predict_sentiment(reviews_df[col].iloc[0])
+            st.success(f"{col}: {results[col]}")
 
         # Show analytics using a bar chart
-        df = pd.DataFrame({'Reviews': [f'Review {i+1}' for i in range(num_reviews)], 'Sentiment': results})
+        df = pd.DataFrame({'Reviews': list(results.keys()), 'Sentiment': list(results.values())})
         df_counts = df['Sentiment'].value_counts()
         fig, ax = plt.subplots()
         ax.bar(df_counts.index, df_counts.values, color=['blue', 'yellow'])
@@ -77,39 +93,5 @@ def main():
         ax.set_ylabel('Count')
         st.pyplot(fig)
 
-    # Define a dictionary of user credentials
-    user_credentials = {
-        "admin": "password123",
-        "user": "password456",
-    }
-
-    # Render the login form
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    if st.button("Log in"):
-        if username in user_credentials and password == user_credentials[username]:
-            session_state = st.session_state.get(authenticated=True, username=username)
-            st.success("Logged in!")
-        else:
-            st.error("Incorrect username or password")
-
-    # If the user is authenticated as the admin, show the reviews and analytics
-    if 'session_state' in locals() and session_state.username == "admin":
-        st.write("Reviews and Analytics")
-        # Show a table of the reviews
-        df_reviews = pd.DataFrame({'Reviews': reviews})
-        st.write(df_reviews)
-
-        # Show a bar chart of the sentiment analysis results
-        fig, ax = plt.subplots()
-        ax.bar(df_counts.index, df_counts.values, color=['blue', 'yellow'])
-        ax.set_title('Sentiment Analysis Results')
-        ax.set_xlabel('Sentiment')
-        ax.set_ylabel('Count')
-        st.pyplot(fig)
-
-
-
-# Run the app
 if __name__=='__main__':
     main()
