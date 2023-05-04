@@ -76,14 +76,14 @@ def main():
               sentiment2 = predict_sentiment(review2)
               sentiment3 = predict_sentiment(review3)
 
-              c.execute("INSERT INTO reviews (review, sentiment) VALUES (?, ?)", (review1, sentiment1))
+              c.execute("INSERT INTO reviews (review1, sentiment1) VALUES (?, ?)", (review1, sentiment1))
 
               conn.commit()
 
-              c.execute("INSERT INTO reviews (review, sentiment) VALUES (?, ?)", (review2, sentiment2))
+              c.execute("INSERT INTO reviews (review2, sentiment2) VALUES (?, ?)", (review2, sentiment2))
               conn.commit()
 
-              c.execute("INSERT INTO reviews (review, sentiment) VALUES (?, ?)", (review3, sentiment3))
+              c.execute("INSERT INTO reviews (review3, sentiment3) VALUES (?, ?)", (review3, sentiment3))
               conn.commit()
 
               st.success('Thank you for submitting your reviews.')
