@@ -93,20 +93,7 @@ def main():
 
 
     else:
-        # Authenticate the admin
-        
-      username = st.sidebar.text_input('Username')
-      password = st.sidebar.text_input('Password', type='password')
-      st.sidebar.button('Login')
-      if authenticate(username, password):
-      st.session_state.is_authenticated = True
-      st.success('Logged in as admin.')
-      else:
-      st.error('Incorrect username or password.')
-
-        # Check if the admin is authenticated
-        if st.session_state.get('is_authenticated'):
-            # Get all the reviews from the database
+# Get all the reviews from the database
             reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
 
             # Check if there are any reviews to display
@@ -133,9 +120,8 @@ def main():
                     c.execute("DELETE FROM reviews")
                     conn.commit()
                     st.success('All reviews have been deleted.')
-
-        else:
-            st.warning('You need to be logged in as admin to view the reviews.')
+        
+            
 
 
 
