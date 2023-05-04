@@ -46,41 +46,33 @@ def predict_sentiment(input_review):
         return "Negative review"
 
 def main():
-    st.set_page_config(page_title='Student sentiment analysis', page_icon=':books:', layout='wide')
+    st.title('Student sentiment analysis')
 
-    # Get the number of users and reviews per user
-    num_users = st.sidebar.number_input('Enter the number of users:', min_value=1, step=1)
-    reviews_per_user = st.sidebar.number_input('Enter the number of reviews per user:', min_value=1, step=1)
+    # Get the number of reviews to collect from the user
+    n_reviews = st.number_input('How many reviews would you like to collect?', min_value=1, max_value=10, step=1)
 
-    # Initialize an empty dataframe to store the reviews
-    reviews_df = pd.DataFrame(columns=['User', 'Review', 'Sentiment'])
+    # Collect the reviews from the user
+    reviews = []
+    for j in range(n_reviews):
+        review = st.text_input(f'Enter review {j+1}:', key=f'review_{j+1}')
+        reviews.append(review)
 
-    # Allow each user to submit their reviews
-    for i in range(num_users):
-        st.subheader(f'User {i+1}')
-        for j in range(reviews_per_user):
-            review = st.text_input(f'Enter review {j+1}:')
-            if st.button('Submit review'):
-                sentiment = predict_sentiment(review)
-                reviews_df = reviews_df.append({'User': f'User {i+1}', 'Review': review, 'Sentiment': sentiment}, ignore_index=True)
-                st.success('Review submitted successfully!')
+    # Perform sentiment analysis and show the results
+    if st.button('Predict'):
+        results = [predict_sentiment(review) for review in reviews]
+        st.write('Sentiment Analysis Results:')
+        for i, result in enumerate(results):
+            st.write(f'Review {i+1}: {result}')
 
-    # Show the admin panel
-    st.sidebar.markdown('## Admin Panel')
-    st.sidebar.write(reviews_df)
-
-    # Show the overall sentiment analysis results
-    st.markdown('## Sentiment analysis results')
-    sentiment_counts = reviews_df['Sentiment'].value_counts()
-    st.write('Sentiment distribution:', sentiment_counts)
-
-    # Show the sentiment analysis results as a bar chart
-    fig, ax = plt.subplots()
-    ax.bar(sentiment_counts.index, sentiment_counts.values, color=['blue', 'yellow'])
-    ax.set_title('Sentiment Analysis Results')
-    ax.set_xlabel('Sentiment')
-    ax.set_ylabel('Count')
-    st.pyplot(fig)
+        # Show analytics using a bar chart
+        df = pd.DataFrame({'Reviews': [f'Review {i+1}' for i in range(n_reviews)], 'Sentiment': results})
+        df_counts = df['Sentiment'].value_counts()
+        fig, ax = plt.subplots()
+        ax.bar(df_counts.index, df_counts.values, color=['blue', 'yellow'])
+        ax.set_title('Sentiment Analysis Results')
+        ax.set_xlabel('Sentiment')
+        ax.set_ylabel('Count')
+        st.pyplot(fig)
 
 
 
