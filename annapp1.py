@@ -28,9 +28,11 @@ c = conn.cursor()
 c.execute('''CREATE TABLE IF NOT EXISTS reviews
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               course_experience TEXT,
+              sentiment1 TEXT,
               instructor TEXT,
+              sentiment3 TEXT,
               material TEXT,
-              sentiment TEXT)''')
+              sentiment3 TEXT)''')
 conn.commit()
 
 # Function to perform sentiment analysis
