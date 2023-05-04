@@ -74,13 +74,13 @@ def show_sentiment_wise_analytics(reviews_df):
                           len(reviews_df[reviews_df['sentiment2'] == 'Negative review']) + \
                           len(reviews_df[reviews_df['sentiment3'] == 'Negative review'])
 
-    st.write(f"Total Number of positive reviews for question 1: {num_pos_reviewsfor1}")
-    st.write(f"Total Number of positive reviews for question 2: {num_pos_reviewsfor2}")
-    st.write(f"Total Number of positive reviews for question 3: {num_pos_reviewsfor3}")
+    st.write(f"Number of positive reviews for question 1: {num_pos_reviewsfor1}")
+    st.write(f"Number of positive reviews for question 2: {num_pos_reviewsfor2}")
+    st.write(f"Number of positive reviews for question 3: {num_pos_reviewsfor3}")
     
-    st.write(f"Total Number of negative reviews for question 1: {num_neg_reviewsfor1}")
-    st.write(f"Total Number of negative reviews for question 2: {num_neg_reviewsfor2}")
-    st.write(f"Total Number of negative reviews for question 3: {num_neg_reviewsfor3}")
+    st.write(f"Number of negative reviews for question 1: {num_neg_reviewsfor1}")
+    st.write(f"Number of negative reviews for question 2: {num_neg_reviewsfor2}")
+    st.write(f"Number of negative reviews for question 3: {num_neg_reviewsfor3}")
   
     st.write(f"Total Number of positive reviews: {totalnum_pos_reviews}")
     st.write(f"Total Number of negative reviews: {totalnum_neg_reviews}")
