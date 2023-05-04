@@ -72,23 +72,21 @@ def main():
 
             # Store the reviews in the database
             if submitted:
-                sentiment1 = predict_sentiment(review1)
-                sentiment2 = predict_sentiment(review2)
-                sentiment3 = predict_sentiment(review3)
+              sentiment1 = predict_sentiment(review1)
+              sentiment2 = predict_sentiment(review2)
+              sentiment3 = predict_sentiment(review3)
 
-                c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
-                          (review1, review2, review3, sentiment1))
-                conn.commit()
+              c.execute("INSERT INTO reviews (review, sentiment) VALUES (?, ?)", (review1, sentiment1))
+              conn.commit()
 
-                c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
-                          (review1, review2, review3, sentiment2))
-                conn.commit()
+              c.execute("INSERT INTO reviews (review, sentiment) VALUES (?, ?)", (review2, sentiment2))
+              conn.commit()
 
-                c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
-                          (review1, review2, review3, sentiment3))
-                conn.commit()
+              c.execute("INSERT INTO reviews (review, sentiment) VALUES (?, ?)", (review3, sentiment3))
+              conn.commit()
 
-                st.success('Thank you for submitting your reviews.')
+              st.success('Thank you for submitting your reviews.')
+
 
     else:
         # Get all the reviews from the database
