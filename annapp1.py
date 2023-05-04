@@ -126,7 +126,7 @@ def main():
              c.execute("DELETE FROM reviews1")
              conn.commit()
              st.success('All reviews have been deleted.')
-          st.header('Sentiment-wise Analytics')
+          
           num_pos_reviews = [num_pos_reviewsfor1, num_pos_reviewsfor2, num_pos_reviewsfor3, totalnum_pos_reviews]
           num_neg_reviews = [num_neg_reviewsfor1, num_neg_reviewsfor2, num_neg_reviewsfor3, totalnum_neg_reviews]
           sentiments = ['Sentiment 1', 'Sentiment 2', 'Sentiment 3', 'Total']
