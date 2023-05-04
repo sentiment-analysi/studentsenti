@@ -94,9 +94,10 @@ def main():
 
     else:
         # Authenticate the admin
-        if st.sidebar.button('Login'):
+        
             username = st.sidebar.text_input('Username')
             password = st.sidebar.text_input('Password', type='password')
+            st.sidebar.button('Login')
             if authenticate(username, password):
                 st.session_state.is_authenticated = True
                 st.success('Logged in as admin.')
