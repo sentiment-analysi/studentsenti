@@ -46,27 +46,61 @@ def predict_sentiment(input_review):
         return "Negative review"
 
 def main():
-    st.title('Student sentiment analysis')
+    st.set_page_config(page_title='Student Sentiment Analysis', page_icon=':books:')
 
     # Get the number of reviews to collect from the user
-    n_reviews = st.number_input('How many reviews would you like to collect?', min_value=1, max_value=10, step=1)
+    num_reviews = st.number_input('How many reviews would you like to collect?', min_value=1, max_value=10)
 
     # Collect the reviews from the user
     reviews = []
-    for j in range(n_reviews):
-        review = st.text_input(f'Enter review {j+1}:', key=f'review_{j+1}')
+    for i in range(num_reviews):
+        review = st.text_input(f'Enter review {i+1}:')
         reviews.append(review)
 
-    # Perform sentiment analysis and show the results
-    if st.button('Predict'):
-        results = [predict_sentiment(review) for review in reviews]
-        st.write('Sentiment Analysis Results:')
-        for i, result in enumerate(results):
-            st.write(f'Review {i+1}: {result}')
+    # If the user has submitted reviews, show the results and analytics
+    if st.button('Submit'):
+        # Perform sentiment analysis and show the results
+        results = []
+        for review in reviews:
+            result = predict_sentiment(review)
+            results.append(result)
+            st.success(f"Review: {review}")
+            st.success(f"Sentiment: {result}")
 
         # Show analytics using a bar chart
-        df = pd.DataFrame({'Reviews': [f'Review {i+1}' for i in range(n_reviews)], 'Sentiment': results})
+        df = pd.DataFrame({'Reviews': [f'Review {i+1}' for i in range(num_reviews)], 'Sentiment': results})
         df_counts = df['Sentiment'].value_counts()
+        fig, ax = plt.subplots()
+        ax.bar(df_counts.index, df_counts.values, color=['blue', 'yellow'])
+        ax.set_title('Sentiment Analysis Results')
+        ax.set_xlabel('Sentiment')
+        ax.set_ylabel('Count')
+        st.pyplot(fig)
+
+    # Define a dictionary of user credentials
+    user_credentials = {
+        "admin": "password123",
+        "user": "password456",
+    }
+
+    # Render the login form
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    if st.button("Log in"):
+        if username in user_credentials and password == user_credentials[username]:
+            session_state = st.session_state.get(authenticated=True, username=username)
+            st.success("Logged in!")
+        else:
+            st.error("Incorrect username or password")
+
+    # If the user is authenticated as the admin, show the reviews and analytics
+    if 'session_state' in locals() and session_state.username == "admin":
+        st.write("Reviews and Analytics")
+        # Show a table of the reviews
+        df_reviews = pd.DataFrame({'Reviews': reviews})
+        st.write(df_reviews)
+
+        # Show a bar chart of the sentiment analysis results
         fig, ax = plt.subplots()
         ax.bar(df_counts.index, df_counts.values, color=['blue', 'yellow'])
         ax.set_title('Sentiment Analysis Results')
