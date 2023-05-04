@@ -60,7 +60,7 @@ def main():
     st.title('Student sentiment analysis')
 
     # Check if user is an admin
-   is_admin = st.sidebar.checkbox('Admin access', key='admin_checkbox')
+    is_admin = st.sidebar.checkbox('Admin access')
 
 
     if not is_admin:
@@ -90,12 +90,7 @@ def main():
         if len(reviews_df) == 0:
             st.warning('No reviews to display.')
         else:
-            # Show individual review analytics
-            st.header('Individual Review Analytics')
-            for column in reviews_df.columns[:-1]:
-                st.subheader(column)
-                df_counts = reviews_df[column].apply(predict_sentiment).value_counts()
-                st.bar_chart(df_counts)
+           
 
             # Show overall analytics
             st.header('Overall Analytics')
