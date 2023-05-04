@@ -11,6 +11,7 @@ from keras.models import load_model
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import sqlite3
 
 nltk.download('stopwords')
 
@@ -18,6 +19,19 @@ nltk.download('stopwords')
 classifier = load_model('trained_model.h5')
 cv = pickle.load(open('count-Vectorizer.pkl','rb'))
 sc = pickle.load(open('Standard-Scaler.pkl','rb'))
+
+# Create a connection to the database
+conn = sqlite3.connect('reviews.db')
+c = conn.cursor()
+
+# Create a table to store the reviews
+c.execute('''CREATE TABLE IF NOT EXISTS reviews
+             (id INTEGER PRIMARY KEY AUTOINCREMENT,
+              course_experience TEXT,
+              instructor TEXT,
+              material TEXT,
+              sentiment TEXT)''')
+conn.commit()
 
 # Function to perform sentiment analysis
 def predict_sentiment(input_review):
@@ -39,63 +53,47 @@ def predict_sentiment(input_review):
     else:
         return "Negative review"
 
-# Function to show analytics for all reviews
-def show_analytics(reviews):
-    results = {}
-    for i, review in enumerate(reviews):
-        result = predict_sentiment(review)
-        results[f'Review {i+1}'] = result
-    df = pd.DataFrame({'Reviews': list(results.keys()), 'Sentiment': list(results.values())})
-    df_counts = df['Sentiment'].value_counts()
-    fig, ax = plt.subplots()
-    ax.bar(df_counts.index, df_counts.values, color=['blue', 'yellow'])
-    ax.set_title('Sentiment Analysis Results')
-    ax.set_xlabel('Sentiment')
-    ax.set_ylabel('Count')
-    st.pyplot(fig)
-
-
-
 def main():
-    st.set_page_config(page_title='Student Sentiment Analysis', page_icon=':books:', layout='wide')
     st.title('Student sentiment analysis')
 
-    # Login form for admin
-    with st.form(key='login_form'):
-        username = st.text_input('Username')
-        password = st.text_input('Password', type='password')
-        login = st.form_submit_button('Login')
+    # Check if user is an admin
+    is_admin = st.sidebar.checkbox('Admin access')
 
-    # If login successful, show the review form
-    if login:
-        if username == 'admin' and password == 'password':
-            st.success('Logged in successfully!')
-            st.sidebar.markdown('## Analytics')
-            st.sidebar.markdown('View sentiment analysis results for all reviews submitted:')
-            show_analytics = st.sidebar.checkbox('Show analytics')
-            if show_analytics:
-                # Load reviews from the database or DataFrame and perform sentiment analysis
-                # Display the sentiment analysis results using a bar chart
-                pass
-            else:
-                # Create a form to collect reviews from multiple users
-                with st.form(key='review_form'):
-                    review1 = st.text_area('How was the course experience?')
-                    review2 = st.text_area('Tell us about the instructor?')
-                    review3 = st.text_area('Was the material provided useful?')
-                    submitted = st.form_submit_button('Submit')
+    if not is_admin:
+        # Create a form to collect reviews from multiple users
+        with st.form(key='review_form'):
+            review1 = st.text_area('How was the course experience?')
+            review2 = st.text_area('Tell us about the instructor?')
+            review3 = st.text_area('Was the material provided useful?')
+            submitted = st.form_submit_button('Submit')
 
-                    # Store the reviews in a database or Pandas DataFrame
-                    if submitted:
-                        reviews_df = pd.DataFrame({
-                            'Course experience': [review1],
-                            'Instructor': [review2],
-                            'Material': [review3]
-                        })
-                        st.success('Thank you for submitting your reviews!')
-        else:
-            st.error('Invalid username or password.')
+            # Store the reviews in the database
+            if submitted:
+                sentiment1 = predict_sentiment(review1)
+                sentiment2 = predict_sentiment(review2)
+                sentiment3 = predict_sentiment(review3)
 
+                c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
+                          (review1, review2, review3, sentiment1))
+                conn.commit()
+                st.success('Thank you for submitting your reviews.')
 
-if __name__=='__main__':
+    else:
+        # Get all the reviews from the database
+        reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
+
+        # Show the reviews in a table
+        st.table(reviews_df)
+
+        # Show analytics using a bar chart
+        df_counts = reviews_df['sentiment'].value_counts()
+        fig, ax = plt.subplots()
+        ax.bar(df_counts.index, df_counts.values, color=['blue', 'yellow'])
+        ax.set_title('Sentiment Analysis Results')
+        ax.set_xlabel('Sentiment')
+        ax.set_ylabel('Number of reviews')
+        st.pyplot(fig)
+
+if __name__ == '__main__':
     main()
+
