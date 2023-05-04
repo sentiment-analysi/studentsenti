@@ -82,17 +82,17 @@ def main():
         # Get all the reviews from the database
         reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
 
-        # Show the reviews in a table
-        st.table(reviews_df)
+        # Show individual review analytics
+        st.header('Individual Review Analytics')
+        for column in reviews_df.columns[:-1]:
+            st.subheader(column)
+            df_counts = reviews_df[column].apply(predict_sentiment).value_counts()
+            st.bar_chart(df_counts)
 
-        # Show analytics using a bar chart
+        # Show overall analytics
+        st.header('Overall Analytics')
         df_counts = reviews_df['sentiment'].value_counts()
-        fig, ax = plt.subplots()
-        ax.bar(df_counts.index, df_counts.values, color=['blue', 'yellow'])
-        ax.set_title('Sentiment Analysis Results')
-        ax.set_xlabel('Sentiment')
-        ax.set_ylabel('Number of reviews')
-        st.pyplot(fig)
+        st.bar_chart(df_counts)
 
 if __name__ == '__main__':
     main()
