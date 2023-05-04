@@ -77,15 +77,15 @@ def main():
                 sentiment3 = predict_sentiment(review3)
 
                 c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
-                            (review1, review2, review3, sentiment1))
+                          (review1, review2, review3, sentiment1))
                 conn.commit()
 
                 c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
-                            (review1, review2, review3, sentiment2))
+                          (review1, review2, review3, sentiment2))
                 conn.commit()
 
                 c.execute("INSERT INTO reviews (course_experience, instructor, material, sentiment) VALUES (?, ?, ?, ?)",
-                            (review1, review2, review3, sentiment3))
+                          (review1, review2, review3, sentiment3))
                 conn.commit()
 
                 st.success('Thank you for submitting your reviews.')
@@ -103,24 +103,24 @@ def main():
             df_counts = reviews_df['sentiment'].value_counts()
             st.bar_chart(df_counts)
 
-            # Show sentiment1 analytics
-            st.header('Sentiment1 Analytics')
-            df_counts1 = reviews_df[reviews_df['sentiment']==1]['sentiment'].value_counts()
-            st.bar_chart(df_counts1)
-
-            # Show sentiment2 analytics
-            st.header('Sentiment2 Analytics')
-            df_counts2 = reviews_df[reviews_df['sentiment']==2]['sentiment'].value_counts()
-            st.bar_chart(df_counts2)
-
-            # Show sentiment3 analytics
-            st.header('Sentiment3 Analytics')
-            df_counts3 = reviews_df[reviews_df['sentiment']==3]['sentiment'].value_counts()
-            st.bar_chart(df_counts3)
+            # Show sentiment-wise analytics
+            st.header('Sentiment-wise Analytics')
+            df_counts1 = reviews_df[reviews_df['sentiment']=='positive']['sentiment'].value_counts()
+            df_counts2 = reviews_df[reviews_df['sentiment']=='negative']['sentiment'].value_counts()
+            st.bar_chart(pd.concat([df_counts1, df_counts2], axis=0))
 
             # Show reviews table
             st.header('Reviews Table')
             st.dataframe(reviews_df)
+
+            # Allow admin to delete all reviews
+            if st.button('Delete all reviews'):
+                confirm = st.warning('Are you sure you want to delete all reviews? This cannot be undone.')
+                if confirm.button('Yes, delete all reviews'):
+                    c.execute("DELETE FROM reviews")
+                    conn.commit()
+                    st.success('All reviews have been deleted.')
+
 
 if __name__ == '__main__':
     main()
