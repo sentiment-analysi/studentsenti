@@ -161,7 +161,7 @@ def main():
           if submitted:
             if not usn or not name or not review1 or not review2 or not review3:
                 st.error('Please fill in all fields.')
-            elif len(usn) > 10:
+            elif len(usn) != 10:
                 st.error('Incorrect USN. The USN should be 10 characters.')
             else:
                 sentiment1 = predict_sentiment(review1)
