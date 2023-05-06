@@ -29,7 +29,7 @@ ADMIN_USERNAME = 'admin'
 ADMIN_PASSWORD = 'password'
 
 # Create a table to store the reviews
-c.execute('''CREATE TABLE IF NOT EXISTS reviews1
+c.execute('''CREATE TABLE IF NOT EXISTS reviews2
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               usn TEXT(10) NOT NULL,
               name TEXT NOT NULL,
@@ -165,7 +165,7 @@ def main():
                 sentiment1 = predict_sentiment(review1)
                 sentiment2 = predict_sentiment(review2)
                 sentiment3 = predict_sentiment(review3)
-                c.execute("INSERT INTO reviews1 (usn,name,course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?,?,?, ?, ?, ?, ?, ?)", (usn,name,review1, sentiment1, review2, sentiment2, review3, sentiment3))
+                c.execute("INSERT INTO reviews2 (usn,name,course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (usn, name, review1, sentiment1, review2, sentiment2, review3, sentiment3))
                 conn.commit()
                 st.success('Thank you for submitting your reviews.')
 
@@ -177,7 +177,7 @@ def main():
                 return
 
         # Get all the reviews from the database
-        reviews_df = pd.read_sql_query("SELECT * FROM reviews1", conn)
+        reviews_df = pd.read_sql_query("SELECT * FROM reviews2", conn)
         # Check if there are any reviews to display
         if len(reviews_df) == 0:
             st.warning('No reviews to display.')
@@ -187,7 +187,7 @@ def main():
 
             # Allow admin to delete all reviews
             if st.button('Delete all reviews'):
-                c.execute("DELETE FROM reviews1")
+                c.execute("DELETE FROM reviews2")
                 conn.commit()
                 st.success('All reviews have been deleted.')
             show_sentiment_wise_analytics(reviews_df)
