@@ -121,7 +121,7 @@ def show_sentiment_wise_analytics(reviews_df):
 # Function to perform login
 # Function to perform login
 def login():
-    st.subheader('Please enter your login credentials')
+    st.subheader('Admin login')
     username = st.text_input('Username')
     password = st.text_input('Password', type='password')
     if st.button('Login'):
@@ -158,16 +158,17 @@ def main():
 
           # Store the reviews in the database
           if submitted:
-              if len(usn) != 10:
-                  st.error('Incorrect USN. Please enter a 10 character USN.')
-              elif not usn or not name or not review1 or not review2 or not review3:
+              if not usn or not name or not review1 or not review2 or not review3:
                   st.error('Please fill in all fields.')
+              elif len(usn) != 10:
+                  st.error('Incorrect USN. Please enter a 10 character USN.')
+              
               else:
                   c.execute("SELECT * FROM reviews2 WHERE usn=?", (usn,))
                   existing_review = c.fetchone()
                   if existing_review:
                     # If the usn already exists, show an error message
-                    st.error(f"Review for {usn} already exists in the database.")
+                    st.error(f"Review for {usn} already exists.")
        
                   else:
                       sentiment1 = predict_sentiment(review1)
