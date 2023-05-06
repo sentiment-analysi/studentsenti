@@ -199,7 +199,7 @@ def main():
             st.dataframe(reviews_df)
             # Allow admin to delete all reviews
             if st.button('Delete all reviews'):
-                c.execute("DELETE FROM reviews2")
+                c.execute("DELETE FROM reviews_df")
                 conn.commit()
                 c.execute("VACUUM")  # This optimizes the database
                 st.success('All reviews have been deleted.')
