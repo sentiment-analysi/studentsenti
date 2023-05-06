@@ -157,7 +157,7 @@ def main():
 
           # Store the reviews in the database
           if submitted:
-              if not review1 or not review2 or not review3:
+              if not usn or not name or not review1 or not review2 or not review3:
                   st.error('Please fill in all fields.')
               else:
                   sentiment1 = predict_sentiment(review1)
