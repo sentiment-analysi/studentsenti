@@ -31,13 +31,14 @@ ADMIN_PASSWORD = 'password'
 # Create a table to store the reviews
 c.execute('''CREATE TABLE IF NOT EXISTS reviews1
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
-              course_experience TEXT,
-              sentiment1 TEXT,
-              instructor TEXT,
-              sentiment2 TEXT,
-              material TEXT,
-              sentiment3 TEXT)''')
-
+              usn TEXT(10) NOT NULL,
+              name TEXT NOT NULL,
+              course_experience TEXT NOT NULL,
+              sentiment1 TEXT NOT NULL,
+              instructor TEXT NOT NULL,
+              sentiment2 TEXT NOT NULL,
+              material TEXT NOT NULL,
+              sentiment3 TEXT NOT NULL)''')
 conn.commit()
 
 # Function to perform sentiment analysis
@@ -147,9 +148,11 @@ def main():
     if not is_admin:
         # Create a form to collect reviews from multiple users
         with st.form(key='review_form'):
-          review1 = st.text_area('How was the course experience?')
-          review2 = st.text_area('Tell us about the instructor?')
-          review3 = st.text_area('Was the material provided useful?')
+          usn=st.text_input('Enter USN:')
+          name=st.text_input('Your Name:')
+          review1 = st.text_input('How was the course experience?')
+          review2 = st.text_input('Tell us about the instructor?')
+          review3 = st.text_input('Was the material provided useful?')
           submitted = st.form_submit_button('Submit')
 
           # Store the reviews in the database
@@ -160,7 +163,7 @@ def main():
                   sentiment1 = predict_sentiment(review1)
                   sentiment2 = predict_sentiment(review2)
                   sentiment3 = predict_sentiment(review3)
-                  c.execute("INSERT INTO reviews1 (course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?)", (review1, sentiment1, review2, sentiment2, review3, sentiment3))
+                  c.execute("INSERT INTO reviews1 (usn,name,course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?,?,?, ?, ?, ?, ?, ?)", (usn,name,review1, sentiment1, review2, sentiment2, review3, sentiment3))
                   conn.commit()
                   st.success('Thank you for submitting your reviews.')
     else:
