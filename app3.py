@@ -183,7 +183,7 @@ def main():
               return
 
         # Get all the reviews from the database
-        reviews_df = pd.read_sql_query("SELECT * FROM reviews2", conn)
+        reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
         # Check if there are any reviews to display
         if len(reviews_df) == 0:
             st.warning('No reviews to display.')
