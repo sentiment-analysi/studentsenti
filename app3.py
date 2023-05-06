@@ -200,10 +200,11 @@ def main():
 
             # Allow admin to delete all reviews
             if st.button('Delete all reviews'):
-                c.execute("DELETE FROM reviews2")
-                conn.commit()
-                st.success('All reviews have been deleted.')
-            show_sentiment_wise_analytics(reviews_df)
+              c.execute("DELETE FROM reviews2")
+              conn.commit()
+              c.execute("VACUUM")  # This optimizes the database
+              st.success('All reviews have been deleted.')
+
 
 
 if __name__ == '__main__':
