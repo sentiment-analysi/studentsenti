@@ -122,12 +122,16 @@ def login():
     st.subheader('Please enter your login credentials')
     username = st.text_input('Username')
     password = st.text_input('Password', type='password')
-    if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-        st.success('Login successful.')
-        return True
-    else:
-        st.error('Invalid credentials.')
-        return False
+    if username and password:
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            st.success('Login successful.')
+            st.session_state['is_admin'] = True
+            return True
+        else:
+            st.error('Invalid credentials.')
+            return False
+    return False
+
 
 # Function to perform logout
 def logout():
@@ -140,41 +144,7 @@ def main():
     # Check if user is an admin
     is_admin = st.sidebar.checkbox('Admin access')
 
-    if is_admin:
-        # Check if admin is logged in
-        if 'is_admin' not in st.session_state:
-            st.session_state['is_admin'] = False
-
-        # Perform login if admin is not logged in
-        if not st.session_state['is_admin']:
-            if login():
-                st.session_state['is_admin'] = True
-
-        # If admin is logged in, show reviews table and allow to delete reviews
-        if st.session_state['is_admin']:
-            # Get all the reviews from the database
-            reviews_df = pd.read_sql_query("SELECT * FROM reviews1", conn)
-            # Check if there are any reviews to display
-            if len(reviews_df) == 0:
-                st.warning('No reviews to display.')
-            else:
-                st.header('Reviews Table')
-                st.dataframe(reviews_df)
-
-                # Allow admin to delete all reviews
-                if st.button('Delete all reviews'):
-                    c.execute("DELETE FROM reviews1")
-                    conn.commit()
-                    st.success('All reviews have been deleted.')
-                show_sentiment_wise_analytics(reviews_df)
-
-        # Perform logout if admin is logged in
-        if st.session_state['is_admin']:
-            if st.button('Logout'):
-                logout()
-                st.session_state['is_admin'] = False
-
-    else:
+    if not is_admin:
         # Create a form to collect reviews from multiple users
         with st.form(key='review_form'):
             review1 = st.text_area('How was the course experience?')
@@ -184,12 +154,35 @@ def main():
 
             # Store the reviews in the database
             if submitted:
-              sentiment1 = predict_sentiment(review1)
-              sentiment2 = predict_sentiment(review2)
-              sentiment3 = predict_sentiment(review3)
-              c.execute("INSERT INTO reviews1 (course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?)", (review1, sentiment1, review2, sentiment2, review3, sentiment3))
+                sentiment1 = predict_sentiment(review1)
+                sentiment2 = predict_sentiment(review2)
+                sentiment3 = predict_sentiment(review3)
+                c.execute("INSERT INTO reviews1 (course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?)", (review1, sentiment1, review2, sentiment2, review3, sentiment3))
 
-              conn.commit()
-              st.success('Thank you for submitting your reviews.')
+                conn.commit()
+                st.success('Thank you for submitting your reviews.')
+    else:
+        # Check if user is logged in
+        if not st.session_state.get('is_admin', False):
+            login_successful = login()
+            if not login_successful:
+                return
+
+        # Get all the reviews from the database
+        reviews_df = pd.read_sql_query("SELECT * FROM reviews1", conn)
+        # Check if there are any reviews to display
+        if len(reviews_df) == 0:
+            st.warning('No reviews to display.')
+        else:
+            st.header('Reviews Table')
+            st.dataframe(reviews_df)
+
+            # Allow admin to delete all reviews
+            if st.button('Delete all reviews'):
+                c.execute("DELETE FROM reviews1")
+                conn.commit()
+                st.success('All reviews have been deleted.')
+            show_sentiment_wise_analytics(reviews_df)
+
 if __name__ == '__main__':
     main()
