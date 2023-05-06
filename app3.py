@@ -154,7 +154,7 @@ def main():
           review1 = st.text_input('How was the course experience?  *')
           review2 = st.text_input('Tell us about the instructor?  *')
           review3 = st.text_input('Was the material provided useful?  *')
-          st.write('* all fields are mandatory')
+          
           submitted = st.form_submit_button('Submit')
           
           # Store the reviews in the database
