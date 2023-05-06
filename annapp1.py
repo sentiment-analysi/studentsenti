@@ -74,16 +74,23 @@ def show_sentiment_wise_analytics(reviews_df):
                           len(reviews_df[reviews_df['sentiment2'] == 'Negative review']) + \
                           len(reviews_df[reviews_df['sentiment3'] == 'Negative review'])
 
-    st.write(f"Number of positive reviews for question 1: {num_pos_reviewsfor1}")
-    st.write(f"Number of positive reviews for question 2: {num_pos_reviewsfor2}")
-    st.write(f"Number of positive reviews for question 3: {num_pos_reviewsfor3}")
+    st.subheader("Question 1 - Course_experience")
+    st.write(f"Positive reviews: {num_pos_reviewsfor1}")
+    st.write(f"Negative reviews: {num_neg_reviewsfor1}")
     
-    st.write(f"Number of negative reviews for question 1: {num_neg_reviewsfor1}")
-    st.write(f"Number of negative reviews for question 2: {num_neg_reviewsfor2}")
-    st.write(f"Number of negative reviews for question 3: {num_neg_reviewsfor3}")
-  
-    st.write(f"Total Number of positive reviews: {totalnum_pos_reviews}")
-    st.write(f"Total Number of negative reviews: {totalnum_neg_reviews}")
+    st.subheader("Question 2 - About Instructor")
+    st.write(f"Positive reviews: {num_pos_reviewsfor2}")
+    st.write(f"Negative reviews: {num_neg_reviewsfor2}")
+    
+    st.subheader("Question 3 - Material Feedback")
+    st.write(f"Positive reviews: {num_pos_reviewsfor3}")
+    st.write(f"Negative reviews: {num_neg_reviewsfor3}")    
+    
+    
+    st.subheader("Total Reviews")
+    st.write(f"Positive reviews: {totalnum_pos_reviews}")
+    st.write(f"Negative reviews: {totalnum_neg_reviews}")
+    st.write(f"Total reviews recorded: {totalnum_pos_reviews+totalnum_neg_reviews}")
 
     # Create a bar graph of the sentiment analysis results
     
