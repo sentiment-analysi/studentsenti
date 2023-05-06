@@ -25,6 +25,9 @@ sc = pickle.load(open('Standard-Scaler.pkl','rb'))
 conn = sqlite3.connect('reviews1.db')
 c = conn.cursor()
 
+ADMIN_USERNAME = 'admin'
+ADMIN_PASSWORD = 'password'
+
 # Create a table to store the reviews
 c.execute('''CREATE TABLE IF NOT EXISTS reviews1
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
