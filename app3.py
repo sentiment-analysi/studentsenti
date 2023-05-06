@@ -141,7 +141,7 @@ def logout():
     
 def main():
     st.title('Student sentiment analysis')
-    st.subheader('Course Evaluation/Feedback Form')
+    st.subheader('Course Evaluation/Feedback Form :')
 
     # Check if user is an admin
     is_admin = st.sidebar.checkbox('Admin access')
@@ -154,8 +154,9 @@ def main():
           review1 = st.text_input('How was the course experience?')
           review2 = st.text_input('Tell us about the instructor?')
           review3 = st.text_input('Was the material provided useful?')
-          submitted = st.form_submit_button('Submit')
           st.write('all fields are mandatory')
+          submitted = st.form_submit_button('Submit')
+          
           # Store the reviews in the database
           if submitted:
             if not usn or not name or not review1 or not review2 or not review3:
