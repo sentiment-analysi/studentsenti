@@ -13,7 +13,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import sqlite3
-
+from sessionstate import SessionState
 nltk.download('stopwords')
 
 # Load the trained model and preprocessing objects
@@ -148,6 +148,8 @@ def main():
 
     if not is_admin:
         # Create a form to collect reviews from multiple users
+        state = SessionState.get(usn="", name="", review1="", review2="", review3="")
+
         with st.form(key='review_form'):
           usn = st.text_input('Enter USN:')
           name = st.text_input('Your Name:')
@@ -178,11 +180,11 @@ def main():
                                 (usn, name, review1, sentiment1, review2, sentiment2, review3, sentiment3))
                       conn.commit()
                       st.success('Thank you, Your feedback is submitted.')
-                      usn = ''
-                      name = ''
-                      review1 = ''
-                      review2 = ''
-                      review3 = ''
+                      state.usn = ''
+                      state.name = ''
+                      state.review1 = ''
+                      state.review2 = ''
+                      state.review3 = ''
 
     else:
         # Check if user is logged in
