@@ -117,19 +117,34 @@ def show_sentiment_wise_analytics(reviews_df):
 
     st.pyplot(fig)
     
-    
+ class SessionState:
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
+
+    def get(self, key):
+        return self.__dict__.get(key, None)
+
+    def set(self, key, value):
+        self.__dict__[key] = value   
 # Function to perform login
 def login():
-    st.subheader('Admin login')
-    username = st.text_input('Username')
-    password = st.text_input('Password', type='password')
-    if st.button('Login'):
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-            st.success('Logged in as admin')
-            return True
+    st.title("Admin Login")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+        # Hash the password
+        hasher = _CodeHasher()
+        hashed_password = hasher.hash(password)
+
+        # Check if the username and password are correct
+        if username == ADMIN_USERNAME and hashed_password == ADMIN_PASSWORD:
+            # If the credentials are correct, set the session state
+            session_state = SessionState.get(is_admin=True)
+            st.experimental_set_query_params(is_admin=True)
+            st.success("Logged in as admin!")
         else:
-            st.warning('Incorrect username or password')
-            return False
+            st.error("Incorrect username or password")
 
     
 def main():
@@ -151,37 +166,32 @@ def main():
                 sentiment1 = predict_sentiment(review1)
                 sentiment2 = predict_sentiment(review2)
                 sentiment3 = predict_sentiment(review3)
-                c.execute("INSERT INTO reviews (course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?)", (review1, sentiment1, review2, sentiment2, review3, sentiment3))
+                c.execute("INSERT INTO reviews1 (course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?)", (review1, sentiment1, review2, sentiment2, review3, sentiment3))
                 conn.commit()
                 st.success('Thank you for submitting your reviews.')
 
     else:
-        # Create a login form for the admin
-        with st.form(key='admin_login_form'):
-            admin_username = st.text_input('Admin username')
-            admin_password = st.text_input('Admin password', type='password')
-            submitted = st.form_submit_button('Login')
+        # Check if the user has logged in
+        session_state = SessionState.get(is_admin=False)
+        if not session_state or not session_state.get('is_admin'):
+            login()
+            return
 
-            # Check if the admin username and password are correct
-            if submitted and admin_username == ADMIN_USERNAME and admin_password == ADMIN_PASSWORD:
-                # Set the session state and display the reviews table
-                session_state = SessionState.get(is_admin=True)
-                st.experimental_set_query_params(is_admin=True)
-                reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
-                if len(reviews_df) == 0:
-                    st.warning('No reviews to display.')
-                else:
-                    st.header('Reviews Table')
-                    st.dataframe(reviews_df)
+        # Get all the reviews from the database
+        reviews_df = pd.read_sql_query("SELECT * FROM reviews1", conn)
+        # Check if there are any reviews to display
+        if len(reviews_df) == 0:
+            st.warning('No reviews to display.')
+        else:
+            st.header('Reviews Table')
+            st.dataframe(reviews_df)
 
-                    # Allow admin to delete all reviews
-                    if st.button('Delete all reviews'):
-                        c.execute("DELETE FROM reviews")
-                        conn.commit()
-                        st.success('All reviews have been deleted.')
-                    show_sentiment_wise_analytics(reviews_df)
-            elif submitted:
-                st.error('Incorrect admin username or password.')
+            # Allow admin to delete all reviews
+            if st.button('Delete all reviews'):
+                c.execute("DELETE FROM reviews1")
+                conn.commit()
+                st.success('All reviews deleted.')
+
 
      
 
