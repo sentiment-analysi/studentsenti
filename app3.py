@@ -147,9 +147,9 @@ def main():
     if not is_admin:
         # Create a form to collect reviews from multiple users
         with st.form(key='review_form'):
-            review1 = st.text_area('How was the course experience?')
-            review2 = st.text_area('Tell us about the instructor?')
-            review3 = st.text_area('Was the material provided useful?')
+            review1 = st.text_area('How was the course experience?',required=True)
+            review2 = st.text_area('Tell us about the instructor?',required=True)
+            review3 = st.text_area('Was the material provided useful?',required=True)
             submitted = st.form_submit_button('Submit')
 
             # Store the reviews in the database
