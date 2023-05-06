@@ -163,10 +163,12 @@ def main():
               elif not usn or not name or not review1 or not review2 or not review3:
                   st.error('Please fill in all fields.')
               else:
-                  c.execute("SELECT * FROM reviews3 WHERE usn=?", (usn,))
-                  result = c.fetchone()
-                  if result is not None:
-                      st.error('Entry already exists.')
+                  c.execute("SELECT * FROM reviews2 WHERE usn=?", (usn,))
+                  existing_review = c.fetchone()
+                  if existing_review:
+                    # If the usn already exists, show an error message
+                    st.error(f"Review for {usn} already exists in the database.")
+       
                   else:
                       sentiment1 = predict_sentiment(review1)
                       sentiment2 = predict_sentiment(review2)
