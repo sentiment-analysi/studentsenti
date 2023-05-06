@@ -22,7 +22,7 @@ cv = pickle.load(open('count-Vectorizer.pkl','rb'))
 sc = pickle.load(open('Standard-Scaler.pkl','rb'))
 
 # Create a connection to the database
-conn = sqlite3.connect('reviews3.db')
+conn = sqlite3.connect('reviews2.db')
 c = conn.cursor()
 
 ADMIN_USERNAME = 'admin'
@@ -173,7 +173,7 @@ def main():
                       sentiment1 = predict_sentiment(review1)
                       sentiment2 = predict_sentiment(review2)
                       sentiment3 = predict_sentiment(review3)
-                      c.execute("INSERT INTO reviews1 (usn, name, course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                      c.execute("INSERT INTO reviews2 (usn, name, course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                                 (usn, name, review1, sentiment1, review2, sentiment2, review3, sentiment3))
                       conn.commit()
                       st.success('Thank you for submitting your reviews.')
