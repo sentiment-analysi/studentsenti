@@ -122,9 +122,10 @@ def show_sentiment_wise_analytics(reviews_df):
 # Function to perform login
 def login():
     st.subheader('Admin login')
-    username = st.text_input('Username')
-    password = st.text_input('Password', type='password')
-    if st.session_state.get('is_admin', False):
+    if 'is_admin' not in st.session_state:
+        st.session_state['is_admin'] = False
+
+    if st.session_state['is_admin']:
         # User is already logged in
         return True
 
