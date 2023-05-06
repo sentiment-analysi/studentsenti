@@ -119,19 +119,19 @@ def show_sentiment_wise_analytics(reviews_df):
     
 
 # Function to perform login
+# Function to perform login
 def login():
     st.subheader('Please enter your login credentials')
     username = st.text_input('Username')
     password = st.text_input('Password', type='password')
-    if username and password:
+    if st.button('Login'):
         if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-            st.success('Login successful.')
-            st.session_state['is_admin'] = True
+            st.success('Logged in as admin')
             return True
         else:
-            st.error('Invalid credentials.')
+            st.warning('Incorrect username or password')
             return False
-    return False
+
 
 
 # Function to perform logout
