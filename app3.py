@@ -158,21 +158,20 @@ def main():
 
           # Store the reviews in the database
           if submitted:
-              if not usn or not name or not review1 or not review2 or not review3:
+              if len(usn) != 10:
+                  st.error('Please enter a valid USN.')
+              elif not usn or not name or not review1 or not review2 or not review3:
                   st.error('Please fill in all fields.')
-              elif len(usn) != 10:
-                  st.error('Incorrect USN format. Please enter a 10-character USN.')
               else:
                   c.execute("SELECT * FROM reviews1 WHERE usn=?", (usn,))
-                  existing_entry = c.fetchone()
-                  if existing_entry is not None:
-                      st.error('Entry with this USN already exists.')
+                  result = c.fetchone()
+                  if result:
+                      st.error('Entry already exists.')
                   else:
                       sentiment1 = predict_sentiment(review1)
                       sentiment2 = predict_sentiment(review2)
                       sentiment3 = predict_sentiment(review3)
-                      c.execute("INSERT INTO reviews1 (usn,name,course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                                (usn, name, review1, sentiment1, review2, sentiment2, review3, sentiment3))
+                      c.execute("INSERT INTO reviews1 (usn,name,course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?,?,?, ?, ?, ?, ?, ?)", (usn, name, review1, sentiment1, review2, sentiment2, review3, sentiment3))
                       conn.commit()
                       st.success('Thank you for submitting your reviews.')
 
