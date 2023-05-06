@@ -156,21 +156,34 @@ def main():
                 st.success('Thank you for submitting your reviews.')
 
     else:
-        # Get all the reviews from the database
-        reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
-        # Check if there are any reviews to display
-        if len(reviews_df) == 0:
-            st.warning('No reviews to display.')
-        else:
-            st.header('Reviews Table')
-            st.dataframe(reviews_df)
+        # Create a login form for the admin
+        with st.form(key='admin_login_form'):
+            admin_username = st.text_input('Admin username')
+            admin_password = st.text_input('Admin password', type='password')
+            submitted = st.form_submit_button('Login')
 
-            # Allow admin to delete all reviews
-            if st.button('Delete all reviews'):
-                c.execute("DELETE FROM reviews")
-                conn.commit()
-                st.success('All reviews have been deleted.')
-            show_sentiment_wise_analytics(reviews_df)
+            # Check if the admin username and password are correct
+            if submitted and admin_username == ADMIN_USERNAME and admin_password == ADMIN_PASSWORD:
+                # Set the session state and display the reviews table
+                session_state = SessionState.get(is_admin=True)
+                st.experimental_set_query_params(is_admin=True)
+                reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
+                if len(reviews_df) == 0:
+                    st.warning('No reviews to display.')
+                else:
+                    st.header('Reviews Table')
+                    st.dataframe(reviews_df)
+
+                    # Allow admin to delete all reviews
+                    if st.button('Delete all reviews'):
+                        c.execute("DELETE FROM reviews")
+                        conn.commit()
+                        st.success('All reviews have been deleted.')
+                    show_sentiment_wise_analytics(reviews_df)
+            elif submitted:
+                st.error('Incorrect admin username or password.')
+
+     
 
 
 
