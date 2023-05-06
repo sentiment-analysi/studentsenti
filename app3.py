@@ -350,7 +350,7 @@ def main():
                 conn.commit()
                 c.execute("VACUUM")  # This optimizes the database
                 st.success('All reviews have been deleted.')
-
+                conn.close()
 
 
 if __name__ == '__main__':
