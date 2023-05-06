@@ -147,20 +147,22 @@ def main():
     if not is_admin:
         # Create a form to collect reviews from multiple users
         with st.form(key='review_form'):
-            review1 = st.text_area('How was the course experience?',required=True)
-            review2 = st.text_area('Tell us about the instructor?',required=True)
-            review3 = st.text_area('Was the material provided useful?',required=True)
-            submitted = st.form_submit_button('Submit')
+          review1 = st.text_area('How was the course experience?')
+          review2 = st.text_area('Tell us about the instructor?')
+          review3 = st.text_area('Was the material provided useful?')
+          submitted = st.form_submit_button('Submit')
 
-            # Store the reviews in the database
-            if submitted:
-                sentiment1 = predict_sentiment(review1)
-                sentiment2 = predict_sentiment(review2)
-                sentiment3 = predict_sentiment(review3)
-                c.execute("INSERT INTO reviews1 (course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?)", (review1, sentiment1, review2, sentiment2, review3, sentiment3))
-
-                conn.commit()
-                st.success('Thank you for submitting your reviews.')
+          # Store the reviews in the database
+          if submitted:
+              if not review1 or not review2 or not review3:
+                  st.error('Please fill in all fields.')
+              else:
+                  sentiment1 = predict_sentiment(review1)
+                  sentiment2 = predict_sentiment(review2)
+                  sentiment3 = predict_sentiment(review3)
+                  c.execute("INSERT INTO reviews1 (course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?)", (review1, sentiment1, review2, sentiment2, review3, sentiment3))
+                  conn.commit()
+                  st.success('Thank you for submitting your reviews.')
     else:
         # Check if user is logged in
         if not st.session_state.get('is_admin', False):
