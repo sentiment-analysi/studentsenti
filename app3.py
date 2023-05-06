@@ -124,13 +124,18 @@ def login():
     st.subheader('Admin login')
     username = st.text_input('Username')
     password = st.text_input('Password', type='password')
-    if st.button('Login'):
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-            st.success('Logged in as admin')
-            return True
-        else:
-            st.warning('Incorrect username or password')
-            return False
+    if st.session_state.get('is_admin', False):
+        # User is already logged in
+        return True
+
+    password = st.sidebar.text_input('Enter password', type='password')
+    if password == ADMIN_PASSWORD:
+        st.sidebar.success('Logged in as admin')
+        st.session_state['is_admin'] = True
+        return True
+    elif password != '':
+        st.sidebar.error('Incorrect password')
+    return False
 
 
 
