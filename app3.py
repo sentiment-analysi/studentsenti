@@ -23,14 +23,14 @@ cv = pickle.load(open('count-Vectorizer.pkl','rb'))
 sc = pickle.load(open('Standard-Scaler.pkl','rb'))
 
 # Create a connection to the database
-conn = sqlite3.connect('reviews2.db')
+conn = sqlite3.connect('reviews.db')
 c = conn.cursor()
 
 ADMIN_USERNAME = 'admin'
 ADMIN_PASSWORD = 'password'
 
 # Create a table to store the reviews
-c.execute('''CREATE TABLE IF NOT EXISTS reviews2
+c.execute('''CREATE TABLE IF NOT EXISTS reviews
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               usn TEXT(10) NOT NULL,
               name TEXT NOT NULL,
@@ -118,8 +118,6 @@ def show_sentiment_wise_analytics(reviews_df):
     st.pyplot(fig)
     
     
-
-# Function to perform login
 # Function to perform login
 def login():
     st.subheader('Admin login')
@@ -133,12 +131,6 @@ def login():
             st.warning('Incorrect username or password')
             return False
 
-
-
-# Function to perform logout
-def logout():
-    st.session_state['is_admin'] = False
-    st.success('Logout successful.')
     
 def main():
     st.title('Student sentiment analysis')
@@ -167,7 +159,7 @@ def main():
                   st.error('Incorrect USN. Please enter a 10 character USN.')
               
               else:
-                  c.execute("SELECT * FROM reviews2 WHERE usn=?", (usn,))
+                  c.execute("SELECT * FROM reviews WHERE usn=?", (usn,))
                   existing_review = c.fetchone()
                   if existing_review:
                     # If the usn already exists, show an error message
@@ -177,7 +169,7 @@ def main():
                       sentiment1 = predict_sentiment(review1)
                       sentiment2 = predict_sentiment(review2)
                       sentiment3 = predict_sentiment(review3)
-                      c.execute("INSERT INTO reviews2 (usn, name, course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                      c.execute("INSERT INTO reviews (usn, name, course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                                 (usn, name, review1, sentiment1, review2, sentiment2, review3, sentiment3))
                       conn.commit()
                       st.success('Thank you, Your feedback is submitted.')
@@ -200,7 +192,7 @@ def main():
             st.dataframe(reviews_df)
             # Allow admin to delete all reviews
             if st.button('Delete all reviews'):
-                c.execute("DELETE FROM reviews2")
+                c.execute("DELETE FROM reviews")
                 conn.commit()
                 c.execute("VACUUM")  # This optimizes the database
                 st.success('All reviews have been deleted.')
