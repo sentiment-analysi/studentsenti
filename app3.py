@@ -22,7 +22,7 @@ cv = pickle.load(open('count-Vectorizer.pkl','rb'))
 sc = pickle.load(open('Standard-Scaler.pkl','rb'))
 
 # Create a connection to the database
-conn = sqlite3.connect('reviews1.db')
+conn = sqlite3.connect('reviews3.db')
 c = conn.cursor()
 
 ADMIN_USERNAME = 'admin'
@@ -163,7 +163,7 @@ def main():
               elif not usn or not name or not review1 or not review2 or not review3:
                   st.error('Please fill in all fields.')
               else:
-                  c.execute("SELECT * FROM reviews1 WHERE usn=?", (usn,))
+                  c.execute("SELECT * FROM reviews3 WHERE usn=?", (usn,))
                   result = c.fetchone()
                   if result is not None:
                       st.error('Entry already exists.')
