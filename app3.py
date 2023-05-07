@@ -63,7 +63,27 @@ def predict_sentiment(input_review):
     else:
         return "Negative review"
 
+def delete_reviews():
+    # Get all available USNs
+    usns = [row[0] for row in c.execute("SELECT usn FROM reviews2").fetchall()]
 
+    # Show dropdown to select a USN
+    selected_usn = st.selectbox('Select a USN:', options=usns)
+
+    # Delete the selected review
+    if selected_usn:
+        delete_button = st.button('Delete')
+
+        if delete_button:
+            c.execute("DELETE FROM reviews2 WHERE usn=?", (selected_usn,))
+            conn.commit()
+            c.execute("VACUUM")  # This optimizes the database
+            st.success(f'Review for {selected_usn} has been deleted.')
+            reviews_df = pd.read_sql_query("SELECT * FROM reviews2", conn)
+            st.experimental_rerun()
+
+    else:
+        st.warning('Please select a USN to delete.')
 def show_sentiment_wise_analytics(reviews_df):
     num_pos_reviewsfor1 = len(reviews_df[reviews_df['sentiment1'] == 'Positive review'])
     num_pos_reviewsfor2 = len(reviews_df[reviews_df['sentiment2'] == 'Positive review'])
@@ -120,13 +140,12 @@ def show_sentiment_wise_analytics(reviews_df):
 def main():
     st.title('Student sentiment analysis')
     st.subheader('Course Evaluation/Feedback Form :')
-
     # Check if user is an admin
     is_admin = st.sidebar.checkbox('Admin access')
 
     # Login process for admin
     if is_admin:
-        st.header('Admin Login')
+        st.subheader('Admin Login')
         username = st.text_input('Username:')
         password = st.text_input('Password:', type='password')
         if st.button('Login'):
@@ -134,7 +153,7 @@ def main():
                 st.success('Logged in as admin.')
             else:
                 st.error('Incorrect username or password.')
-      
+
 
     # User review form
     else:
@@ -148,10 +167,13 @@ def main():
 
             # Store the reviews in the database
             if submitted:
+                usn_pattern = r'^[1-9][A-Za-z]{2}\d{2}[A-Za-z]{2}\d{3}$'
                 if not usn or not name or not review1 or not review2 or not review3:
                     st.error('Please fill in all fields.')
                 elif len(usn) != 10:
                     st.error('Incorrect USN. Please enter a 10 character USN.')
+                elif not re.match(usn_pattern, usn):
+                    st.error('Incorrect USN. Please enter a valid USN (eg:4JK16CS001). ')
                 else:
                     c.execute("SELECT * FROM reviews2 WHERE usn=?", (usn,))
                     existing_review = c.fetchone()
@@ -166,7 +188,8 @@ def main():
                                 (usn, name, review1, sentiment1, review2, sentiment2, review3, sentiment3))
                         conn.commit()
                         st.success('Thank you, Your feedback is submitted.')
-                      
+
+
     # Display reviews for admin
     if is_admin and username == 'admin' and password == 'password':
         reviews_df = pd.read_sql_query("SELECT * FROM reviews2", conn)
@@ -176,12 +199,26 @@ def main():
         else:
             st.header('Reviews Table')
             st.dataframe(reviews_df)
-            # Allow admin to delete all reviews
-            if st.button('Delete all reviews'):
-                c.execute("DELETE FROM reviews2")
-                conn.commit()
-                c.execute("VACUUM")  # This optimizes the database
-                st.success('All reviews have been deleted.')
+            if st.button('Refresh'):
+              reviews_df = pd.read_sql_query("SELECT * FROM reviews2", conn)
+              st.experimental_rerun()
+            # Create a beta expander for delete reviews feature
+            with st.expander('Delete Reviews'):
+                st.write('Use this section to delete reviews from the database.')
+                st.write('Select a USN from the dropdown, and click the Delete button to remove the review.')
+                delete_reviews()
+                st.write('Click this below button if you want to delete all the entries')
+                if st.button('Delete all reviews'):
+                  # Add confirmation dialog box
+                  c.execute("DELETE FROM reviews2")
+                  conn.commit()
+                  c.execute("VACUUM")
+                  st.success('All reviews have been deleted.')
+                  reviews_df = pd.read_sql_query("SELECT * FROM reviews2", conn)
+                  st.experimental_rerun()
+
+
+
             show_sentiment_wise_analytics(reviews_df)
 
           
