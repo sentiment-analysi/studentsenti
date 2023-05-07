@@ -184,20 +184,25 @@ def main():
 
     else:
         # Check if user is logged in
+        if not st.session_state.get('is_admin', False):
+          login_successful = login()
+          if not login_successful:
+              return
+
         # Get all the reviews from the database
-          reviews_df = pd.read_sql_query("SELECT * FROM reviews2", conn)
-          # Check if there are any reviews to display
-          if len(reviews_df) == 0:
-              st.warning('No reviews to display.')
-          else:
-              st.header('Reviews Table')
-              st.dataframe(reviews_df)
-              # Allow admin to delete all reviews
-              if st.button('Delete all reviews'):
-                  c.execute("DELETE FROM reviews_df")
-                  conn.commit()
-                  c.execute("VACUUM")  # This optimizes the database
-                  st.success('All reviews have been deleted.')
+        reviews_df = pd.read_sql_query("SELECT * FROM reviews2", conn)
+        # Check if there are any reviews to display
+        if len(reviews_df) == 0:
+            st.warning('No reviews to display.')
+        else:
+            st.header('Reviews Table')
+            st.dataframe(reviews_df)
+            # Allow admin to delete all reviews
+            if st.button('Delete all reviews'):
+                c.execute("DELETE FROM reviews2")
+                conn.commit()
+                c.execute("VACUUM")  # This optimizes the database
+                st.success('All reviews have been deleted.')
 
           
 
