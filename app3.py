@@ -115,29 +115,7 @@ def show_sentiment_wise_analytics(reviews_df):
     ax.set_title('Sentiment Analysis Results')
 
     st.pyplot(fig)
-    
-    
 
-# Function to perform login
-# Function to perform login
-def login():
-    st.subheader('Admin login')
-    username = st.text_input('Username')
-    password = st.text_input('Password', type='password')
-    if st.button('Login'):
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-            st.success('Logged in as admin')
-            return True
-        else:
-            st.warning('Incorrect username or password')
-            return False
-
-
-
-# Function to perform logout
-def logout():
-    st.session_state['is_admin'] = False
-    st.success('Logout successful.')
     
 def main():
     st.title('Student sentiment analysis')
