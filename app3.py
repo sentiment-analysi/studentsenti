@@ -63,8 +63,8 @@ def predict_sentiment(input_review):
     else:
         return "Negative review"
 
-question_labels = ['Q1', 'Q2', 'Q3', 'Total']
-def show_sentiment_wise_analytics(reviews_df,question_labels):
+
+def show_sentiment_wise_analytics(reviews_df):
     num_pos_reviewsfor1 = len(reviews_df[reviews_df['sentiment1'] == 'Positive review'])
     num_pos_reviewsfor2 = len(reviews_df[reviews_df['sentiment2'] == 'Positive review'])
     num_pos_reviewsfor3 = len(reviews_df[reviews_df['sentiment3'] == 'Positive review'])
@@ -100,7 +100,7 @@ def show_sentiment_wise_analytics(reviews_df,question_labels):
     
     fig, ax = plt.subplots(figsize=(10,5))
     sentiment_labels = ['Positive', 'Negative']
-    
+    question_labels = ['Q1', 'Q2', 'Q3', 'Total']
     pos_counts = [num_pos_reviewsfor1, num_pos_reviewsfor2, num_pos_reviewsfor3, totalnum_pos_reviews]
     neg_counts = [num_neg_reviewsfor1, num_neg_reviewsfor2, num_neg_reviewsfor3, totalnum_neg_reviews]
     x = np.arange(len(question_labels))
@@ -182,7 +182,7 @@ def main():
                 conn.commit()
                 c.execute("VACUUM")  # This optimizes the database
                 st.success('All reviews have been deleted.')
-            show_sentiment_wise_analytics(reviews_df,question_labels)
+            show_sentiment_wise_analytics(reviews_df)
 
           
 
