@@ -1,4 +1,3 @@
-
 import re
 import nltk
 from nltk.corpus import stopwords
@@ -23,14 +22,14 @@ cv = pickle.load(open('count-Vectorizer.pkl','rb'))
 sc = pickle.load(open('Standard-Scaler.pkl','rb'))
 
 # Create a connection to the database
-conn = sqlite3.connect('reviews.db')
+conn = sqlite3.connect('reviews2.db')
 c = conn.cursor()
 
 ADMIN_USERNAME = 'admin'
 ADMIN_PASSWORD = 'password'
 
 # Create a table to store the reviews
-c.execute('''CREATE TABLE IF NOT EXISTS reviews
+c.execute('''CREATE TABLE IF NOT EXISTS reviews2
              (id INTEGER PRIMARY KEY AUTOINCREMENT,
               usn TEXT(10) NOT NULL,
               name TEXT NOT NULL,
@@ -117,82 +116,96 @@ def show_sentiment_wise_analytics(reviews_df):
 
     st.pyplot(fig)
     
+    
 
 # Function to perform login
+# Function to perform login
 def login():
-    st.title("Admin Login")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-
-    if st.button("Login"):
-        # Hash the password
-        hasher = _CodeHasher()
-        hashed_password = hasher.hash(password)
-
-        # Check if the username and password are correct
-        if username == ADMIN_USERNAME and hashed_password == ADMIN_PASSWORD:
-            # If the credentials are correct, set the session state
-            session_state = SessionState.get(is_admin=True)
-            st.experimental_set_query_params(is_admin=True)
-            st.success("Logged in as admin!")
+    st.subheader('Admin login')
+    username = st.text_input('Username')
+    password = st.text_input('Password', type='password')
+    if st.button('Login'):
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            st.success('Logged in as admin')
+            return True
         else:
-            st.error("Incorrect username or password")
+            st.warning('Incorrect username or password')
+            return False
 
+
+
+# Function to perform logout
+def logout():
+    st.session_state['is_admin'] = False
+    st.success('Logout successful.')
     
 def main():
     st.title('Student sentiment analysis')
+    st.subheader('Course Evaluation/Feedback Form :')
 
     # Check if user is an admin
     is_admin = st.sidebar.checkbox('Admin access')
 
     if not is_admin:
         # Create a form to collect reviews from multiple users
-        with st.form(key='review_form'):
-            review1 = st.text_area('How was the course experience?')
-            review2 = st.text_area('Tell us about the instructor?')
-            review3 = st.text_area('Was the material provided useful?')
-            submitted = st.form_submit_button('Submit')
+       
 
-            # Store the reviews in the database
-            if submitted:
-                sentiment1 = predict_sentiment(review1)
-                sentiment2 = predict_sentiment(review2)
-                sentiment3 = predict_sentiment(review3)
-                c.execute("INSERT INTO reviews1 (course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?)", (review1, sentiment1, review2, sentiment2, review3, sentiment3))
-                conn.commit()
-                st.success('Thank you for submitting your reviews.')
+        with st.form(key='review_form'):
+          usn = st.text_input('Enter USN:')
+          name = st.text_input('Your Name:')
+          review1 = st.text_input('How was the course experience?')
+          review2 = st.text_input('Tell us about the instructor?')
+          review3 = st.text_input('Was the material provided useful?')
+          submitted = st.form_submit_button('Submit')
+
+          # Store the reviews in the database
+          if submitted:
+              if not usn or not name or not review1 or not review2 or not review3:
+                  st.error('Please fill in all fields.')
+              elif len(usn) != 10:
+                  st.error('Incorrect USN. Please enter a 10 character USN.')
+              
+              else:
+                  c.execute("SELECT * FROM reviews2 WHERE usn=?", (usn,))
+                  existing_review = c.fetchone()
+                  if existing_review:
+                    # If the usn already exists, show an error message
+                    st.error(f"Review for {usn} already exists.")
+       
+                  else:
+                      sentiment1 = predict_sentiment(review1)
+                      sentiment2 = predict_sentiment(review2)
+                      sentiment3 = predict_sentiment(review3)
+                      c.execute("INSERT INTO reviews2 (usn, name, course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                                (usn, name, review1, sentiment1, review2, sentiment2, review3, sentiment3))
+                      conn.commit()
+                      st.success('Thank you, Your feedback is submitted.')
+                      
 
     else:
-        # Check if the user has logged in
-        session_state = SessionState.get(is_admin=False)
-        if not session_state or not session_state.get('is_admin'):
-            login()
-            return
+        # Check if user is logged in
+        if not st.session_state.get('is_admin', False):
+          login_successful = login()
+          if not login_successful:
+              return
 
         # Get all the reviews from the database
-        reviews_df = pd.read_sql_query("SELECT * FROM reviews1", conn)
-        # Check if there are any reviews to display
-        if len(reviews_df) == 0:
-            st.warning('No reviews to display.')
-        else:
-            st.header('Reviews Table')
-            st.dataframe(reviews_df)
-
-            # Allow admin to delete all reviews
-            if st.button('Delete all reviews'):
-                c.execute("DELETE FROM reviews1")
-                conn.commit()
-                st.success('All reviews deleted.')
-
-
-     
+          reviews_df = pd.read_sql_query("SELECT * FROM reviews2", conn)
+          # Check if there are any reviews to display
+          if len(reviews_df) == 0:
+              st.warning('No reviews to display.')
+          else:
+              st.header('Reviews Table')
+              st.dataframe(reviews_df)
+              # Allow admin to delete all reviews
+              if st.button('Delete all reviews'):
+                  c.execute("DELETE FROM reviews_df")
+                  conn.commit()
+                  c.execute("VACUUM")  # This optimizes the database
+                  st.success('All reviews have been deleted.')
 
 
 
 if __name__ == '__main__':
     main()
-
-
-
-
 
