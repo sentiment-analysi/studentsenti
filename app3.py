@@ -182,7 +182,7 @@ def main():
                 conn.commit()
                 c.execute("VACUUM")  # This optimizes the database
                 st.success('All reviews have been deleted.')
-
+             show_sentiment_wise_analytics(reviews_df)
 
           
 
