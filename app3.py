@@ -184,11 +184,6 @@ def main():
 
     else:
         # Check if user is logged in
-        if not st.session_state.get('is_admin', False):
-          login_successful = login()
-          if not login_successful:
-              return
-
         # Get all the reviews from the database
           reviews_df = pd.read_sql_query("SELECT * FROM reviews2", conn)
           # Check if there are any reviews to display
@@ -203,6 +198,8 @@ def main():
                   conn.commit()
                   c.execute("VACUUM")  # This optimizes the database
                   st.success('All reviews have been deleted.')
+
+          
 
 
 
