@@ -134,8 +134,7 @@ def main():
                 st.success('Logged in as admin.')
             else:
                 st.error('Incorrect username or password.')
-        else:
-            st.warning('Please enter your login details.')
+      
 
     # User review form
     else:
