@@ -33,8 +33,7 @@ conn = mysql.connector.connect(
 )
 c = conn.cursor()
 
-ADMIN_USERNAME = 'admin'
-ADMIN_PASSWORD = 'password'
+
 
 # Function to perform sentiment analysis
 def predict_sentiment(input_review):
@@ -113,106 +112,39 @@ def show_sentiment_wise_analytics(reviews_df):
 def main():
     st.title('Student sentiment analysis')
     st.subheader('Course Evaluation/Feedback Form :')
-    # Check if user is an admin
-    is_admin = st.sidebar.checkbox('Admin access')
+  
+    with st.form(key='review_form'):
+            usn = st.text_input('Enter USN:')
+            name = st.text_input('Your Name:')
+            review1 = st.text_input('How was the course experience?')
+            review2 = st.text_input('Tell us about the instructor?')
+            review3 = st.text_input('Was the material provided useful?')
+            submitted = st.form_submit_button('Submit')
 
-    # Login process for admin
-    if is_admin:
-        st.subheader('Admin Login')
-        username = st.text_input('Username:')
-        password = st.text_input('Password:', type='password')
-        if st.button('Login'):
-            if username == 'admin' and password == 'password':
-                st.success('Logged in as admin.')
-            else:
-                st.error('Incorrect username or password.')
-
-
-    # User review form
-    else:
-        with st.form(key='review_form'):
-                usn = st.text_input('Enter USN:')
-                name = st.text_input('Your Name:')
-                review1 = st.text_input('How was the course experience?')
-                review2 = st.text_input('Tell us about the instructor?')
-                review3 = st.text_input('Was the material provided useful?')
-                submitted = st.form_submit_button('Submit')
-
-                # Store the reviews in the database
-                if submitted:
-                    usn_pattern = r'^[1-9][A-Za-z]{2}\d{2}[A-Za-z]{2}\d{3}$'
-                    if not usn or not name or not review1 or not review2 or not review3:
-                        st.error('Please fill in all fields.')
-                    elif len(usn) != 10:
-                        st.error('Incorrect USN. Please enter a 10 character USN.')
-                    elif not re.match(usn_pattern, usn):
-                        st.error('Incorrect USN. Please enter a valid USN (eg:4JK16CS001). ')
+            # Store the reviews in the database
+            if submitted:
+                usn_pattern = r'^[1-9][A-Za-z]{2}\d{2}[A-Za-z]{2}\d{3}$'
+                if not usn or not name or not review1 or not review2 or not review3:
+                    st.error('Please fill in all fields.')
+                elif len(usn) != 10:
+                    st.error('Incorrect USN. Please enter a 10 character USN.')
+                elif not re.match(usn_pattern, usn):
+                    st.error('Incorrect USN. Please enter a valid USN (eg:4JK16CS001). ')
+                else:
+                    c.execute("SELECT * FROM reviews WHERE usn=%s", (usn,))
+                    existing_review = c.fetchone()
+                    if existing_review:
+                        # If the usn already exists, show an error message
+                        st.error(f"Review for {usn} already exists.")
                     else:
-                        c.execute("SELECT * FROM reviews WHERE usn=%s", (usn,))
-                        existing_review = c.fetchone()
-                        if existing_review:
-                            # If the usn already exists, show an error message
-                            st.error(f"Review for {usn} already exists.")
-                        else:
-                            sentiment1 = predict_sentiment(review1)
-                            sentiment2 = predict_sentiment(review2)
-                            sentiment3 = predict_sentiment(review3)
-                            c.execute("INSERT INTO reviews (usn, name, course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",(usn, name, review1, sentiment1, review2, sentiment2, review3, sentiment3))
+                        sentiment1 = predict_sentiment(review1)
+                        sentiment2 = predict_sentiment(review2)
+                        sentiment3 = predict_sentiment(review3)
+                        c.execute("INSERT INTO reviews (usn, name, course_experience, sentiment1, instructor, sentiment2, material, sentiment3) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",(usn, name, review1, sentiment1, review2, sentiment2, review3, sentiment3))
 
-                            conn.commit()
-                            st.success('Thank you, Your feedback is submitted.')
-
-        # Display reviews for admin
-        if is_admin and username == 'admin' and password == 'password':
-            reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
-            # Check if there are any reviews to display
-            if len(reviews_df) == 0:
-                st.warning('No reviews to display.')
-            else:
-                st.header('Reviews Table')
-                st.dataframe(reviews_df)
-                
-                if st.button('Refresh'):
-                    reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
-                    st.experimental_rerun()
-                    
-                
-                
-                # Create a beta expander for delete reviews feature
-                with st.expander('QUICK TOOLS MENU'):
-                    st.subheader('Download all reviews')
-                    st.write('Downloads reviews in xlsx format')
-                    if st.button('Download'):
-                        # Convert DataFrame to Excel file in memory
-                        excel_file = io.BytesIO()
-                        with pd.ExcelWriter(excel_file, engine='xlsxwriter') as writer:
-                            reviews_df.to_excel(writer, index=False, sheet_name='Reviews')
-                        excel_file.seek(0)
-
-                        # Set up the download link
-                        st.download_button('Download Database', data=excel_file, file_name='reviews_database.xlsx', mime='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-                    st.subheader('Delete all reviews')
-                    st.write('Use this button to delete all reviews at one click')
-                    if st.button('Delete All Reviews'):
-                        c.execute("DELETE FROM reviews")
                         conn.commit()
-                        st.success('All reviews have been deleted.')
-                        reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
-                        st.experimental_rerun()
-                    else:
-                        st.subheader('Delete a particular reviews')
-                        st.write('Use this button to delete particular review based on USN')
-                        usns = ['Select USN'] + reviews_df['usn'].unique().tolist()  # Add initial placeholder option
-                        selected_usn = st.selectbox('Select USN:', usns)
-                        if selected_usn != 'Select USN':  # Check if a valid USN is selected
-                            if st.button('Delete'):
-                                c.execute("DELETE FROM reviews WHERE usn=%s", (selected_usn,))
-                                conn.commit()
-                                st.success(f"Review for {selected_usn} deleted.")
-                                reviews_df = pd.read_sql_query("SELECT * FROM reviews", conn)
-                                st.experimental_rerun()
+                        st.success('Thank you, Your feedback is submitted.')
 
-                show_sentiment_wise_analytics(reviews_df)
                 
                 
 if __name__ == '__main__':
