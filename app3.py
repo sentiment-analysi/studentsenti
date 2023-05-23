@@ -213,4 +213,7 @@ def main():
                                 st.experimental_rerun()
 
                 show_sentiment_wise_analytics(reviews_df)
-
+                
+                
+if __name__ == '__main__':
+    main()
